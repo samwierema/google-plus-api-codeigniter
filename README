@@ -1,0 +1,4 @@
+Just upload these files into your CodeIgniter application folder and set the config files
+
+Uses the Google APIs Client Library for PHP
+http://code.google.com/p/google-api-php-client/ 
