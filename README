@@ -1,4 +1,11 @@
-Just upload these files into your CodeIgniter application folder and set the config files
+Just upload these files into your CodeIgniter application folder and set the config variables. You can then load the library like this
+  $this->load->library('googleplus');
+
+Example usage:
+  $this->googleplus->people->get('me'); // when authorized
+  $this->googleplus->people->get('115414977082318263605'); // that's me :-)
+  
+Read the full API docs on the Google+ website http://developers.google.com/+/api
 
 Uses the Google APIs Client Library for PHP
 http://code.google.com/p/google-api-php-client/ 
