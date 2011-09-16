@@ -10,6 +10,9 @@ class Googleplus {
 		require APPPATH .'third_party/google-api-php-client/src/apiClient.php';
 		require APPPATH .'third_party/google-api-php-client/src/contrib/apiPlusService.php';
 		
+		$cache_path = $CI->config->item('cache_path');
+		$GLOBALS['apiConfig']['ioFileCache_directory'] = ($cache_path == '') ? APPPATH .'cache/' : $cache_path;
+		
 		$client = new apiClient();
 		$client->setApplicationName($CI->config->item('application_name', 'googleplus'));
 		$client->setClientId($CI->config->item('client_id', 'googleplus'));
