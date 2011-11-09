@@ -25,8 +25,8 @@ require_once "external/URITemplateParser.php";
 class apiREST {
 
   /**
-   * Executes a apiServiceRequest using a RESTful call by transforming it into a apiHttpRequest, execute it via apiIO::authenticatedRequest()
-   * and returning the json decoded result
+   * Executes a apiServiceRequest using a RESTful call by transforming it into a apiHttpRequest,
+   * execute it via apiIO::authenticatedRequest() and returning the json decoded result
    *
    * @param apiServiceRequest $request
    * @return array decoded result
@@ -188,5 +188,4 @@ class apiREST {
     }
     return $ret;
   }
-
 }

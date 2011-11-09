@@ -100,16 +100,11 @@ class apiDiacritizeService extends apiService {
 }
 
 class LanguageDiacritizeCorpusResource extends apiModel {
-
   public $diacritized_text;
-
   public function setDiacritized_text($diacritized_text) {
     $this->diacritized_text = $diacritized_text;
   }
-
   public function getDiacritized_text() {
     return $this->diacritized_text;
   }
-  
 }
-

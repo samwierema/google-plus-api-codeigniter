@@ -22,6 +22,7 @@
  * the request
  *
  * @author Chris Chabot <chabotc@google.com>
+ * @author Chirag Shah <chirags@google.com>
  *
  */
 class apiServiceRequest {
@@ -37,15 +38,22 @@ class apiServiceRequest {
   protected $batchKey;
 
   /**
-   * Only used internally, so using a quick-and-dirty constructor
+   * @param apiIO $io
+   * @param string $restBasePath
+   * @param string $rpcPath
+   * @param string $restPath
+   * @param string $rpcName
+   * @param string $httpMethod
+   * @param $parameters
+   * @param $postBody
    */
   public function __construct(apiIO $io, $restBasePath, $rpcPath, $restPath, $rpcName, $httpMethod, $parameters, $postBody = null) {
-    global $apiConfig;
     $this->io = $io;
 
     if (substr($restBasePath, 0, 4) == 'http') {
       $this->restBasePath = $restBasePath;
     } else {
+      global $apiConfig;
       $this->restBasePath = $apiConfig['basePath'] . $restBasePath;
     }
 
