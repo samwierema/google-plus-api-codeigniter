@@ -35,7 +35,7 @@ require_once 'service/apiServiceRequest.php';
      * Creates a new task on the specified task list. (tasks.insert)
      *
      * @param string $tasklist Task list identifier.
-     * @param $postBody the {@link Task}
+     * @param Task $postBody
      * @param array $optParams Optional parameters. Valid optional parameters are listed below.
      *
      * @opt_param string parent Parent task identifier. If the task is created at the top level, this parameter is omitted. Optional.
@@ -136,7 +136,7 @@ require_once 'service/apiServiceRequest.php';
      *
      * @param string $tasklist Task list identifier.
      * @param string $task Task identifier.
-     * @param $postBody the {@link Task}
+     * @param Task $postBody
      * @return Task
      */
     public function update($tasklist, $task, Task $postBody) {
@@ -153,7 +153,7 @@ require_once 'service/apiServiceRequest.php';
      *
      * @param string $tasklist Task list identifier.
      * @param string $task Task identifier.
-     * @param $postBody the {@link Task}
+     * @param Task $postBody
      * @return Task
      */
     public function patch($tasklist, $task, Task $postBody) {
@@ -192,7 +192,7 @@ require_once 'service/apiServiceRequest.php';
     /**
      * Creates a new task list and adds it to the authenticated user's task lists. (tasklists.insert)
      *
-     * @param $postBody the {@link TaskList}
+     * @param TaskList $postBody
      * @return TaskList
      */
     public function insert(TaskList $postBody) {
@@ -242,7 +242,7 @@ require_once 'service/apiServiceRequest.php';
      * Updates the authenticated user's specified task list. (tasklists.update)
      *
      * @param string $tasklist Task list identifier.
-     * @param $postBody the {@link TaskList}
+     * @param TaskList $postBody
      * @return TaskList
      */
     public function update($tasklist, TaskList $postBody) {
@@ -259,7 +259,7 @@ require_once 'service/apiServiceRequest.php';
      * (tasklists.patch)
      *
      * @param string $tasklist Task list identifier.
-     * @param $postBody the {@link TaskList}
+     * @param TaskList $postBody
      * @return TaskList
      */
     public function patch($tasklist, TaskList $postBody) {
@@ -462,6 +462,7 @@ class TaskList extends apiModel {
 class TaskLists extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'TaskList';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $etag;
@@ -472,7 +473,7 @@ class TaskLists extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(TaskList) */ $items) {
-    $this->assertIsArray($items, TaskList, __METHOD__);
+    $this->assertIsArray($items, 'TaskList', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -495,6 +496,7 @@ class TaskLists extends apiModel {
 class Tasks extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'Task';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $etag;
@@ -505,7 +507,7 @@ class Tasks extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(Task) */ $items) {
-    $this->assertIsArray($items, Task, __METHOD__);
+    $this->assertIsArray($items, 'Task', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {

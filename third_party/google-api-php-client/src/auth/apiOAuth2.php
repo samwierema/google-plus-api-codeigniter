@@ -17,6 +17,7 @@
 
 require_once "apiVerifier.php";
 require_once "apiLoginTicket.php";
+require_once "service/apiUtils.php";
 
 /**
  * Authentication class that deals with the OAuth 2 web-server authentication flow
@@ -31,11 +32,12 @@ class apiOAuth2 extends apiAuth {
   public $accessToken;
   public $redirectUri;
   public $state;
+  public $accessType = 'offline';
+  public $approvalPrompt = 'force';
 
   const OAUTH2_TOKEN_URI = "https://accounts.google.com/o/oauth2/token";
   const OAUTH2_AUTH_URL = "https://accounts.google.com/o/oauth2/auth";
-  const OAUTH2_FEDERATED_SIGNON_CERTS_URL =
-    "https://www.googleapis.com/oauth2/v1/certs";
+  const OAUTH2_FEDERATED_SIGNON_CERTS_URL = "https://www.googleapis.com/oauth2/v1/certs";
   const CLOCK_SKEW_SECS = 300; // five minutes in seconds
   const AUTH_TOKEN_LIFETIME_SECS = 300; // five minutes in seconds
   const MAX_TOKEN_LIFETIME_SECS = 86400; // one day in seconds
@@ -61,6 +63,14 @@ class apiOAuth2 extends apiAuth {
 
     if (! empty($apiConfig['oauth2_redirect_uri'])) {
       $this->redirectUri = $apiConfig['oauth2_redirect_uri'];
+    }
+    
+    if (! empty($apiConfig['oauth2_access_type'])) {
+      $this->accessType = $apiConfig['oauth2_access_type'];
+    }
+
+    if (! empty($apiConfig['oauth2_approval_prompt'])) {
+      $this->approvalPrompt = $apiConfig['oauth2_approval_prompt'];
     }
   }
 
@@ -108,7 +118,9 @@ class apiOAuth2 extends apiAuth {
         'response_type=code',
         'redirect_uri=' . urlencode($this->redirectUri),
         'client_id=' . urlencode($this->clientId),
-        'scope=' . urlencode($service['scope'])
+        'scope=' . urlencode($service['scope']),
+        'access_type=' . urlencode($this->accessType),
+        'approval_prompt=' . urlencode($this->approvalPrompt)
     );
 
     if (isset($this->state)) {
@@ -139,6 +151,14 @@ class apiOAuth2 extends apiAuth {
 
   public function setState($state) {
     $this->state = $state;
+  }
+
+  public function setAccessType($accessType) {
+    $this->accessType = $accessType;
+  }
+
+  public function setApprovalPrompt($approvalPrompt) {
+    $this->approvalPrompt = $approvalPrompt;
   }
 
   public function sign(apiHttpRequest $request) {
@@ -212,36 +232,22 @@ class apiOAuth2 extends apiAuth {
         $request->getResponseHttpCode());
   }
 
-  // Verifies an id token and returns the authenticated apiLoginTicket.
-  //
-  // Throws an exception if the id token is not valid.
-  //
-  // The audience parameter can be used to control which id tokens are
-  // accepted.  By default, the id token must have been issued to this OAuth2
-  // client.
+  /**
+   * Verifies an id token and returns the authenticated apiLoginTicket.
+   * Throws an exception if the id token is not valid.
+   * The audience parameter can be used to control which id tokens are
+   * accepted.  By default, the id token must have been issued to this OAuth2 client.
+   *
+   * @param $id_token
+   * @param $audience
+   * @return apiLoginTicket
+   */
   function verifyIdToken($id_token, $audience = null) {
     $certs = $this->getFederatedSignonCerts();
     if (!$audience) {
-      $audience = $this->ClientId;
+      $audience = $this->clientId;
     }
     return $this->verifySignedJwtWithCerts($id_token, $certs, $audience);
-  }
-
-  // Visible for testing.
-  static function urlSafeB64Encode($data) {
-    $b64 = base64_encode($data);
-    $b64 = str_replace(array('+', '/', '\r', '\n', '='),
-                       array('-', '_'),
-                       $b64);
-    return $b64;
-  }
-
-  // Visible for testing.
-  static function urlSafeB64Decode($b64) {
-    $b64 = str_replace(array('-', '_'),
-                       array('+', '/'),
-                       $b64);
-    return base64_decode($b64);
   }
 
   // Verifies the id token, returns the verified token contents.
@@ -253,16 +259,16 @@ class apiOAuth2 extends apiAuth {
       throw new apiAuthException("Wrong number of segments in token: $jwt");
     }
     $signed = $segments[0] . "." . $segments[1];
-    $signature = self::urlSafeB64Decode($segments[2]);
+    $signature = apiUtils::urlSafeB64Decode($segments[2]);
 
     // Parse envelope.
-    $envelope = json_decode(self::urlSafeB64Decode($segments[0]), true);
+    $envelope = json_decode(apiUtils::urlSafeB64Decode($segments[0]), true);
     if (!$envelope) {
       throw new apiAuthException("Can't parse token envelope: " . $segments[0]);
     }
 
     // Parse token
-    $json_body = self::urlSafeB64Decode($segments[1]);
+    $json_body = apiUtils::urlSafeB64Decode($segments[1]);
     $payload = json_decode($json_body, true);
     if (!$payload) {
       throw new apiAuthException("Can't parse token payload: " . $segments[1]);
@@ -270,7 +276,7 @@ class apiOAuth2 extends apiAuth {
 
     // Check signature
     $verified = false;
-    foreach ($certs as $key_name => $pem) {
+    foreach ($certs as $keyName => $pem) {
       $public_key = new apiPemVerifier($pem);
       if ($public_key->verify($signed, $signature)) {
         $verified = true;
@@ -321,8 +327,7 @@ class apiOAuth2 extends apiAuth {
     // Check audience
     $aud = $payload["aud"];
     if ($aud != $required_audience) {
-      throw new apiAuthException(
-          "Wrong recipient, $aud != $required_audience: $json_body");
+      throw new apiAuthException("Wrong recipient, $aud != $required_audience: $json_body");
     }
 
     // All good.

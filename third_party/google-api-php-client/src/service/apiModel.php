@@ -24,7 +24,7 @@
  */
 class apiModel {
   public function __construct( /* polymorphic */ ) {
-    if (func_num_args() ==  1 && 'array' == gettype(func_get_arg(0))) {
+    if (func_num_args() ==  1 && is_array(func_get_arg(0))) {
       // Initialize the model with the array's contents.
       $array = func_get_arg(0);
       $this->mapTypes($array);
@@ -102,9 +102,9 @@ class apiModel {
   /**
    * Verify if $obj is an array.
    * @throws apiException Thrown if $obj isn't an array.
-   * @param $obj
-   * @param $type Array items should be of this type.
-   * @param $method Method expecting an array as an argument.
+   * @param array $obj Items that should be validated.
+   * @param string $type Array items should be of this type.
+   * @param string $method Method expecting an array as an argument.
    */
   protected function assertIsArray($obj, $type, $method) {
     if ($obj && !is_array($obj)) {

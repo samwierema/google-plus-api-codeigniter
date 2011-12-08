@@ -208,6 +208,25 @@ class apiClient {
   public function setState($state) {
     $this->auth->setState($state);
   }
+
+  /**
+   * @param string $accessType Possible values for access_type include:
+   *  {@code "offline"} to request offline access from the user. (This is the default value)
+   *  {@code "online"} to request online access from the user.
+   */
+  public function setAccessType($accessType) {
+    $this->auth->setAccessType($accessType);
+  }
+
+  /**
+   * @param string $approvalPrompt Possible values for approval_prompt include:
+   *  {@code "force"} to force the approval UI to appear. (This is the default value)
+   *  {@code "auto"} to request auto-approval when possible.
+   */
+  public function setApprovalPrompt($approvalPrompt) {
+    $this->auth->setApprovalPrompt($approvalPrompt);
+  }
+
   /**
    * Set the application name, this is included in the User-Agent HTTP header.
    * @param string $applicationName

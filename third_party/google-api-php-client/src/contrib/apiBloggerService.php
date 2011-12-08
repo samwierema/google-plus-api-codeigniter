@@ -304,14 +304,17 @@ class Blog extends apiModel {
   public $kind;
   public $description;
   protected $__localeType = 'BlogLocale';
+  protected $__localeDataType = '';
   public $locale;
   protected $__postsType = 'BlogPosts';
+  protected $__postsDataType = '';
   public $posts;
   public $updated;
   public $id;
   public $url;
   public $published;
   protected $__pagesType = 'BlogPages';
+  protected $__pagesDataType = '';
   public $pages;
   public $selfLink;
   public $name;
@@ -385,10 +388,11 @@ class Blog extends apiModel {
 
 class BlogList extends apiModel {
   protected $__itemsType = 'Blog';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(Blog) */ $items) {
-    $this->assertIsArray($items, Blog, __METHOD__);
+    $this->assertIsArray($items, 'Blog', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -464,12 +468,15 @@ class Comment extends apiModel {
   public $content;
   public $kind;
   protected $__authorType = 'CommentAuthor';
+  protected $__authorDataType = '';
   public $author;
   public $updated;
   protected $__blogType = 'CommentBlog';
+  protected $__blogDataType = '';
   public $blog;
   public $published;
   protected $__postType = 'CommentPost';
+  protected $__postDataType = '';
   public $post;
   public $id;
   public $selfLink;
@@ -532,6 +539,7 @@ class Comment extends apiModel {
 class CommentAuthor extends apiModel {
   public $url;
   protected $__imageType = 'CommentAuthorImage';
+  protected $__imageDataType = '';
   public $image;
   public $displayName;
   public $id;
@@ -584,6 +592,7 @@ class CommentBlog extends apiModel {
 class CommentList extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'Comment';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $prevPageToken;
@@ -594,7 +603,7 @@ class CommentList extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(Comment) */ $items) {
-    $this->assertIsArray($items, Comment, __METHOD__);
+    $this->assertIsArray($items, 'Comment', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -628,11 +637,13 @@ class Page extends apiModel {
   public $content;
   public $kind;
   protected $__authorType = 'PageAuthor';
+  protected $__authorDataType = '';
   public $author;
   public $url;
   public $title;
   public $updated;
   protected $__blogType = 'PageBlog';
+  protected $__blogDataType = '';
   public $blog;
   public $published;
   public $id;
@@ -702,6 +713,7 @@ class Page extends apiModel {
 class PageAuthor extends apiModel {
   public $url;
   protected $__imageType = 'PageAuthorImage';
+  protected $__imageDataType = '';
   public $image;
   public $displayName;
   public $id;
@@ -753,10 +765,11 @@ class PageBlog extends apiModel {
 
 class PageList extends apiModel {
   protected $__itemsType = 'Page';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(Page) */ $items) {
-    $this->assertIsArray($items, Page, __METHOD__);
+    $this->assertIsArray($items, 'Page', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -774,12 +787,15 @@ class Post extends apiModel {
   public $content;
   public $kind;
   protected $__authorType = 'PostAuthor';
+  protected $__authorDataType = '';
   public $author;
   protected $__repliesType = 'PostReplies';
+  protected $__repliesDataType = '';
   public $replies;
   public $labels;
   public $updated;
   protected $__blogType = 'PostBlog';
+  protected $__blogDataType = '';
   public $blog;
   public $url;
   public $published;
@@ -811,7 +827,7 @@ class Post extends apiModel {
     return $this->replies;
   }
   public function setLabels(/* array(string) */ $labels) {
-    $this->assertIsArray($labels, string, __METHOD__);
+    $this->assertIsArray($labels, 'string', __METHOD__);
     $this->labels = $labels;
   }
   public function getLabels() {
@@ -864,6 +880,7 @@ class Post extends apiModel {
 class PostAuthor extends apiModel {
   public $url;
   protected $__imageType = 'PostAuthorImage';
+  protected $__imageDataType = '';
   public $image;
   public $displayName;
   public $id;
@@ -916,6 +933,7 @@ class PostBlog extends apiModel {
 class PostList extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'Post';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $prevPageToken;
@@ -926,7 +944,7 @@ class PostList extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(Post) */ $items) {
-    $this->assertIsArray($items, Post, __METHOD__);
+    $this->assertIsArray($items, 'Post', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -968,8 +986,10 @@ class User extends apiModel {
   public $displayName;
   public $created;
   protected $__localeType = 'UserLocale';
+  protected $__localeDataType = '';
   public $locale;
   protected $__blogsType = 'UserBlogs';
+  protected $__blogsDataType = '';
   public $blogs;
   public $kind;
   public $url;

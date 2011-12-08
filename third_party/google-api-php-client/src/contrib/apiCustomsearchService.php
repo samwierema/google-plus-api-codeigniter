@@ -100,10 +100,11 @@ class apiCustomsearchService extends apiService {
 
 class Context extends apiModel {
   protected $__facetsType = 'ContextFacets';
+  protected $__facetsDataType = 'array';
   public $facets;
   public $title;
   public function setFacets(/* array(ContextFacets) */ $facets) {
-    $this->assertIsArray($facets, ContextFacets, __METHOD__);
+    $this->assertIsArray($facets, 'ContextFacets', __METHOD__);
     $this->facets = $facets;
   }
   public function getFacets() {
@@ -138,8 +139,10 @@ class Promotion extends apiModel {
   public $link;
   public $displayLink;
   protected $__imageType = 'PromotionImage';
+  protected $__imageDataType = '';
   public $image;
   protected $__bodyLinesType = 'PromotionBodyLines';
+  protected $__bodyLinesDataType = 'array';
   public $bodyLines;
   public $title;
   public function setLink($link) {
@@ -161,7 +164,7 @@ class Promotion extends apiModel {
     return $this->image;
   }
   public function setBodyLines(/* array(PromotionBodyLines) */ $bodyLines) {
-    $this->assertIsArray($bodyLines, PromotionBodyLines, __METHOD__);
+    $this->assertIsArray($bodyLines, 'PromotionBodyLines', __METHOD__);
     $this->bodyLines = $bodyLines;
   }
   public function getBodyLines() {
@@ -413,18 +416,23 @@ class Result extends apiModel {
 
 class Search extends apiModel {
   protected $__promotionsType = 'Promotion';
+  protected $__promotionsDataType = 'array';
   public $promotions;
   public $kind;
   protected $__urlType = 'SearchUrl';
+  protected $__urlDataType = '';
   public $url;
   protected $__itemsType = 'Result';
+  protected $__itemsDataType = 'array';
   public $items;
   protected $__contextType = 'Context';
+  protected $__contextDataType = '';
   public $context;
   protected $__queriesType = 'Query';
+  protected $__queriesDataType = 'map';
   public $queries;
   public function setPromotions(/* array(Promotion) */ $promotions) {
-    $this->assertIsArray($promotions, Promotion, __METHOD__);
+    $this->assertIsArray($promotions, 'Promotion', __METHOD__);
     $this->promotions = $promotions;
   }
   public function getPromotions() {
@@ -443,7 +451,7 @@ class Search extends apiModel {
     return $this->url;
   }
   public function setItems(/* array(Result) */ $items) {
-    $this->assertIsArray($items, Result, __METHOD__);
+    $this->assertIsArray($items, 'Result', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {

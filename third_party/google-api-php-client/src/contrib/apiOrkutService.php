@@ -80,7 +80,7 @@ require_once 'service/apiServiceRequest.php';
      * Inserts a new comment to an activity. (comments.insert)
      *
      * @param string $activityId The ID of the activity to contain the new comment.
-     * @param $postBody the {@link Comment}
+     * @param Comment $postBody
      * @return Comment
      */
     public function insert($activityId, Comment $postBody) {
@@ -170,6 +170,34 @@ require_once 'service/apiServiceRequest.php';
   }
 
   /**
+   * The "scraps" collection of methods.
+   * Typical usage is:
+   *  <code>
+   *   $orkutService = new apiOrkutService(...);
+   *   $scraps = $orkutService->scraps;
+   *  </code>
+   */
+  class ScrapsServiceResource extends apiServiceResource {
+
+
+    /**
+     * Creates a new scrap. (scraps.insert)
+     *
+     * @param Activity $postBody
+     * @return Activity
+     */
+    public function insert(Activity $postBody) {
+      $params = array('postBody' => $postBody);
+      $data = $this->__call('insert', array($params));
+      if ($this->useObjects()) {
+        return new Activity($data);
+      } else {
+        return $data;
+      }
+    }
+  }
+
+  /**
    * The "activityVisibility" collection of methods.
    * Typical usage is:
    *  <code>
@@ -185,7 +213,7 @@ require_once 'service/apiServiceRequest.php';
      * (activityVisibility.patch)
      *
      * @param string $activityId ID of the activity.
-     * @param $postBody the {@link Visibility}
+     * @param Visibility $postBody
      * @return Visibility
      */
     public function patch($activityId, Visibility $postBody) {
@@ -201,7 +229,7 @@ require_once 'service/apiServiceRequest.php';
      * Updates the visibility of an existing activity. (activityVisibility.update)
      *
      * @param string $activityId ID of the activity.
-     * @param $postBody the {@link Visibility}
+     * @param Visibility $postBody
      * @return Visibility
      */
     public function update($activityId, Visibility $postBody) {
@@ -322,6 +350,7 @@ class apiOrkutService extends apiService {
   public $activities;
   public $comments;
   public $acl;
+  public $scraps;
   public $activityVisibility;
   public $badges;
   public $counters;
@@ -341,6 +370,7 @@ class apiOrkutService extends apiService {
     $this->activities = new ActivitiesServiceResource($this, $this->serviceName, 'activities', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/orkut", "https://www.googleapis.com/auth/orkut.readonly"], "parameters": {"collection": {"required": true, "enum": ["all", "scraps", "stream"], "location": "path", "type": "string"}, "pageToken": {"type": "string", "location": "query"}, "userId": {"required": true, "type": "string", "location": "path"}, "hl": {"type": "string", "location": "query"}, "maxResults": {"format": "uint32", "maximum": "100", "minimum": "1", "location": "query", "type": "integer"}}, "id": "orkut.activities.list", "httpMethod": "GET", "path": "people/{userId}/activities/{collection}", "response": {"$ref": "ActivityList"}}, "delete": {"scopes": ["https://www.googleapis.com/auth/orkut"], "parameters": {"activityId": {"required": true, "type": "string", "location": "path"}}, "httpMethod": "DELETE", "path": "activities/{activityId}", "id": "orkut.activities.delete"}}}', true));
     $this->comments = new CommentsServiceResource($this, $this->serviceName, 'comments', json_decode('{"methods": {"insert": {"scopes": ["https://www.googleapis.com/auth/orkut"], "parameters": {"activityId": {"required": true, "type": "string", "location": "path"}}, "request": {"$ref": "Comment"}, "id": "orkut.comments.insert", "httpMethod": "POST", "path": "activities/{activityId}/comments", "response": {"$ref": "Comment"}}, "delete": {"scopes": ["https://www.googleapis.com/auth/orkut"], "parameters": {"commentId": {"required": true, "type": "string", "location": "path"}}, "httpMethod": "DELETE", "path": "comments/{commentId}", "id": "orkut.comments.delete"}, "list": {"scopes": ["https://www.googleapis.com/auth/orkut", "https://www.googleapis.com/auth/orkut.readonly"], "parameters": {"orderBy": {"default": "DESCENDING_SORT", "enum": ["ascending", "descending"], "location": "query", "type": "string"}, "pageToken": {"type": "string", "location": "query"}, "activityId": {"required": true, "type": "string", "location": "path"}, "hl": {"type": "string", "location": "query"}, "maxResults": {"format": "uint32", "minimum": "1", "type": "integer", "location": "query"}}, "id": "orkut.comments.list", "httpMethod": "GET", "path": "activities/{activityId}/comments", "response": {"$ref": "CommentList"}}, "get": {"scopes": ["https://www.googleapis.com/auth/orkut", "https://www.googleapis.com/auth/orkut.readonly"], "parameters": {"commentId": {"required": true, "type": "string", "location": "path"}, "hl": {"type": "string", "location": "query"}}, "id": "orkut.comments.get", "httpMethod": "GET", "path": "comments/{commentId}", "response": {"$ref": "Comment"}}}}', true));
     $this->acl = new AclServiceResource($this, $this->serviceName, 'acl', json_decode('{"methods": {"delete": {"scopes": ["https://www.googleapis.com/auth/orkut"], "parameters": {"activityId": {"required": true, "type": "string", "location": "path"}, "userId": {"required": true, "type": "string", "location": "path"}}, "httpMethod": "DELETE", "path": "activities/{activityId}/acl/{userId}", "id": "orkut.acl.delete"}}}', true));
+    $this->scraps = new ScrapsServiceResource($this, $this->serviceName, 'scraps', json_decode('{"methods": {"insert": {"scopes": ["https://www.googleapis.com/auth/orkut"], "request": {"$ref": "Activity"}, "response": {"$ref": "Activity"}, "httpMethod": "POST", "path": "activities/scraps", "id": "orkut.scraps.insert"}}}', true));
     $this->activityVisibility = new ActivityVisibilityServiceResource($this, $this->serviceName, 'activityVisibility', json_decode('{"methods": {"get": {"scopes": ["https://www.googleapis.com/auth/orkut", "https://www.googleapis.com/auth/orkut.readonly"], "parameters": {"activityId": {"required": true, "type": "string", "location": "path"}}, "id": "orkut.activityVisibility.get", "httpMethod": "GET", "path": "activities/{activityId}/visibility", "response": {"$ref": "Visibility"}}, "update": {"scopes": ["https://www.googleapis.com/auth/orkut"], "parameters": {"activityId": {"required": true, "type": "string", "location": "path"}}, "request": {"$ref": "Visibility"}, "id": "orkut.activityVisibility.update", "httpMethod": "PUT", "path": "activities/{activityId}/visibility", "response": {"$ref": "Visibility"}}, "patch": {"scopes": ["https://www.googleapis.com/auth/orkut"], "parameters": {"activityId": {"required": true, "type": "string", "location": "path"}}, "request": {"$ref": "Visibility"}, "id": "orkut.activityVisibility.patch", "httpMethod": "PATCH", "path": "activities/{activityId}/visibility", "response": {"$ref": "Visibility"}}}}', true));
     $this->badges = new BadgesServiceResource($this, $this->serviceName, 'badges', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/orkut", "https://www.googleapis.com/auth/orkut.readonly"], "parameters": {"userId": {"required": true, "type": "string", "location": "path"}}, "id": "orkut.badges.list", "httpMethod": "GET", "path": "people/{userId}/badges", "response": {"$ref": "BadgeList"}}, "get": {"scopes": ["https://www.googleapis.com/auth/orkut", "https://www.googleapis.com/auth/orkut.readonly"], "parameters": {"userId": {"required": true, "type": "string", "location": "path"}, "badgeId": {"format": "int64", "required": true, "type": "string", "location": "path"}}, "id": "orkut.badges.get", "httpMethod": "GET", "path": "people/{userId}/badges/{badgeId}", "response": {"$ref": "Badge"}}}}', true));
     $this->counters = new CountersServiceResource($this, $this->serviceName, 'counters', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/orkut", "https://www.googleapis.com/auth/orkut.readonly"], "parameters": {"userId": {"required": true, "type": "string", "location": "path"}}, "id": "orkut.counters.list", "httpMethod": "GET", "path": "people/{userId}/counters", "response": {"$ref": "Counters"}}}}', true));
@@ -349,12 +379,13 @@ class apiOrkutService extends apiService {
 
 class Acl extends apiModel {
   protected $__itemsType = 'AclItems';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $description;
   public $totalParticipants;
   public function setItems(/* array(AclItems) */ $items) {
-    $this->assertIsArray($items, AclItems, __METHOD__);
+    $this->assertIsArray($items, 'AclItems', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -400,14 +431,18 @@ class AclItems extends apiModel {
 class Activity extends apiModel {
   public $kind;
   protected $__linksType = 'OrkutLinkResource';
+  protected $__linksDataType = 'array';
   public $links;
   public $title;
   protected $__objectType = 'ActivityObject';
+  protected $__objectDataType = '';
   public $object;
   public $updated;
   protected $__actorType = 'OrkutAuthorResource';
+  protected $__actorDataType = '';
   public $actor;
   protected $__accessType = 'Acl';
+  protected $__accessDataType = '';
   public $access;
   public $verb;
   public $published;
@@ -419,7 +454,7 @@ class Activity extends apiModel {
     return $this->kind;
   }
   public function setLinks(/* array(OrkutLinkResource) */ $links) {
-    $this->assertIsArray($links, OrkutLinkResource, __METHOD__);
+    $this->assertIsArray($links, 'OrkutLinkResource', __METHOD__);
     $this->links = $links;
   }
   public function getLinks() {
@@ -478,6 +513,7 @@ class Activity extends apiModel {
 class ActivityList extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'Activity';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setNextPageToken($nextPageToken) {
@@ -487,7 +523,7 @@ class ActivityList extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(Activity) */ $items) {
-    $this->assertIsArray($items, Activity, __METHOD__);
+    $this->assertIsArray($items, 'Activity', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -504,8 +540,10 @@ class ActivityList extends apiModel {
 class ActivityObject extends apiModel {
   public $content;
   protected $__itemsType = 'OrkutActivityobjectsResource';
+  protected $__itemsDataType = 'array';
   public $items;
   protected $__repliesType = 'ActivityObjectReplies';
+  protected $__repliesDataType = '';
   public $replies;
   public $objectType;
   public function setContent($content) {
@@ -515,7 +553,7 @@ class ActivityObject extends apiModel {
     return $this->content;
   }
   public function setItems(/* array(OrkutActivityobjectsResource) */ $items) {
-    $this->assertIsArray($items, OrkutActivityobjectsResource, __METHOD__);
+    $this->assertIsArray($items, 'OrkutActivityobjectsResource', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -538,6 +576,7 @@ class ActivityObject extends apiModel {
 class ActivityObjectReplies extends apiModel {
   public $totalItems;
   protected $__itemsType = 'Comment';
+  protected $__itemsDataType = 'array';
   public $items;
   public $url;
   public function setTotalItems($totalItems) {
@@ -547,7 +586,7 @@ class ActivityObjectReplies extends apiModel {
     return $this->totalItems;
   }
   public function setItems(/* array(Comment) */ $items) {
-    $this->assertIsArray($items, Comment, __METHOD__);
+    $this->assertIsArray($items, 'Comment', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -629,10 +668,11 @@ class Badge extends apiModel {
 
 class BadgeList extends apiModel {
   protected $__itemsType = 'Badge';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(Badge) */ $items) {
-    $this->assertIsArray($items, Badge, __METHOD__);
+    $this->assertIsArray($items, 'Badge', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -648,11 +688,14 @@ class BadgeList extends apiModel {
 
 class Comment extends apiModel {
   protected $__inReplyToType = 'CommentInReplyTo';
+  protected $__inReplyToDataType = '';
   public $inReplyTo;
   public $kind;
   protected $__linksType = 'OrkutLinkResource';
+  protected $__linksDataType = 'array';
   public $links;
   protected $__actorType = 'OrkutAuthorResource';
+  protected $__actorDataType = '';
   public $actor;
   public $content;
   public $published;
@@ -670,7 +713,7 @@ class Comment extends apiModel {
     return $this->kind;
   }
   public function setLinks(/* array(OrkutLinkResource) */ $links) {
-    $this->assertIsArray($links, OrkutLinkResource, __METHOD__);
+    $this->assertIsArray($links, 'OrkutLinkResource', __METHOD__);
     $this->links = $links;
   }
   public function getLinks() {
@@ -736,6 +779,7 @@ class CommentInReplyTo extends apiModel {
 class CommentList extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'Comment';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $previousPageToken;
@@ -746,7 +790,7 @@ class CommentList extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(Comment) */ $items) {
-    $this->assertIsArray($items, Comment, __METHOD__);
+    $this->assertIsArray($items, 'Comment', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -768,10 +812,11 @@ class CommentList extends apiModel {
 
 class Counters extends apiModel {
   protected $__itemsType = 'OrkutCounterResource';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(OrkutCounterResource) */ $items) {
-    $this->assertIsArray($items, OrkutCounterResource, __METHOD__);
+    $this->assertIsArray($items, 'OrkutCounterResource', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -788,9 +833,11 @@ class Counters extends apiModel {
 class OrkutActivityobjectsResource extends apiModel {
   public $displayName;
   protected $__linksType = 'OrkutLinkResource';
+  protected $__linksDataType = 'array';
   public $links;
   public $content;
   protected $__personType = 'OrkutActivitypersonResource';
+  protected $__personDataType = '';
   public $person;
   public $id;
   public $objectType;
@@ -801,7 +848,7 @@ class OrkutActivityobjectsResource extends apiModel {
     return $this->displayName;
   }
   public function setLinks(/* array(OrkutLinkResource) */ $links) {
-    $this->assertIsArray($links, OrkutLinkResource, __METHOD__);
+    $this->assertIsArray($links, 'OrkutLinkResource', __METHOD__);
     $this->links = $links;
   }
   public function getLinks() {
@@ -835,10 +882,12 @@ class OrkutActivityobjectsResource extends apiModel {
 
 class OrkutActivitypersonResource extends apiModel {
   protected $__nameType = 'OrkutActivitypersonResourceName';
+  protected $__nameDataType = '';
   public $name;
   public $url;
   public $gender;
   protected $__imageType = 'OrkutActivitypersonResourceImage';
+  protected $__imageDataType = '';
   public $image;
   public $birthday;
   public $id;
@@ -910,6 +959,7 @@ class OrkutActivitypersonResourceName extends apiModel {
 class OrkutAuthorResource extends apiModel {
   public $url;
   protected $__imageType = 'OrkutAuthorResourceImage';
+  protected $__imageDataType = '';
   public $image;
   public $displayName;
   public $id;
@@ -952,6 +1002,7 @@ class OrkutAuthorResourceImage extends apiModel {
 class OrkutCounterResource extends apiModel {
   public $total;
   protected $__linkType = 'OrkutLinkResource';
+  protected $__linkDataType = '';
   public $link;
   public $name;
   public function setTotal($total) {
@@ -1009,6 +1060,7 @@ class Visibility extends apiModel {
   public $kind;
   public $visibility;
   protected $__linksType = 'OrkutLinkResource';
+  protected $__linksDataType = 'array';
   public $links;
   public function setKind($kind) {
     $this->kind = $kind;
@@ -1023,7 +1075,7 @@ class Visibility extends apiModel {
     return $this->visibility;
   }
   public function setLinks(/* array(OrkutLinkResource) */ $links) {
-    $this->assertIsArray($links, OrkutLinkResource, __METHOD__);
+    $this->assertIsArray($links, 'OrkutLinkResource', __METHOD__);
     $this->links = $links;
   }
   public function getLinks() {

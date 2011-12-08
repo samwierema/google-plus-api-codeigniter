@@ -31,9 +31,13 @@ class apiServiceResource {
       'userIp' => array('type' => 'string', 'location' => 'query'),
       'userip' => array('type' => 'string', 'location' => 'query')
   );
+
+  /** @var apiService $service */
   private $service;
   private $serviceName;
   private $resourceName;
+
+  /** @var array $methods */
   private $methods;
 
   public function __construct($service, $serviceName, $resourceName, $resource) {
@@ -150,13 +154,13 @@ class apiServiceResource {
     return (isset($apiConfig['use_objects']) && $apiConfig['use_objects']);
   }
 
-  private function stripNull(&$o) {
+  protected function stripNull(&$o) {
     $o = (array) $o;
     foreach ($o as $k => $v) {
       if ($v === null) {
         unset($o[$k]);
       }
-      elseif ('object' == gettype($v) || 'array' == gettype($v)) {
+      elseif (is_object($v) || is_array($v)) {
         $this->stripNull($o[$k]);
       }
     }

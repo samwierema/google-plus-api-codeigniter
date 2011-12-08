@@ -34,7 +34,7 @@ require_once 'service/apiServiceRequest.php';
     /**
      * Updates or creates the user's current location. (currentLocation.insert)
      *
-     * @param $postBody the {@link Location}
+     * @param Location $postBody
      * @return Location
      */
     public function insert(Location $postBody) {
@@ -89,7 +89,7 @@ require_once 'service/apiServiceRequest.php';
     /**
      * Inserts or updates a location in the user's location history. (location.insert)
      *
-     * @param $postBody the {@link Location}
+     * @param Location $postBody
      * @return Location
      */
     public function insert(Location $postBody) {
@@ -265,10 +265,11 @@ class Location extends apiModel {
 
 class LocationFeed extends apiModel {
   protected $__itemsType = 'Location';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(Location) */ $items) {
-    $this->assertIsArray($items, Location, __METHOD__);
+    $this->assertIsArray($items, 'Location', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {

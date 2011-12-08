@@ -229,11 +229,11 @@ class apiAdsenseService extends apiService {
     $this->io = $apiClient->getIo();
 
     $apiClient->addService($this->serviceName, $this->version);
-    $this->urlchannels = new UrlchannelsServiceResource($this, $this->serviceName, 'urlchannels', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/adsense"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "adClientId": {"required": true, "type": "string", "location": "path"}, "maxResults": {"format": "int32", "maximum": "10000", "minimum": "0", "location": "query", "type": "integer"}}, "id": "adsense.urlchannels.list", "httpMethod": "GET", "path": "adclients/{adClientId}/urlchannels", "response": {"$ref": "UrlChannels"}}}}', true));
-    $this->adunits = new AdunitsServiceResource($this, $this->serviceName, 'adunits', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/adsense"], "parameters": {"includeInactive": {"type": "boolean", "location": "query"}, "pageToken": {"type": "string", "location": "query"}, "adClientId": {"required": true, "type": "string", "location": "path"}, "maxResults": {"format": "int32", "maximum": "10000", "minimum": "0", "location": "query", "type": "integer"}}, "id": "adsense.adunits.list", "httpMethod": "GET", "path": "adclients/{adClientId}/adunits", "response": {"$ref": "AdUnits"}}}}', true));
-    $this->adclients = new AdclientsServiceResource($this, $this->serviceName, 'adclients', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/adsense"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "maxResults": {"format": "int32", "maximum": "10000", "minimum": "0", "location": "query", "type": "integer"}}, "response": {"$ref": "AdClients"}, "httpMethod": "GET", "path": "adclients", "id": "adsense.adclients.list"}}}', true));
-    $this->reports = new ReportsServiceResource($this, $this->serviceName, 'reports', json_decode('{"methods": {"generate": {"scopes": ["https://www.googleapis.com/auth/adsense"], "parameters": {"sort": {"repeated": true, "type": "string", "location": "query"}, "startDate": {"required": true, "type": "string", "location": "query"}, "endDate": {"required": true, "type": "string", "location": "query"}, "locale": {"type": "string", "location": "query"}, "metric": {"repeated": true, "type": "string", "location": "query"}, "maxResults": {"format": "int32", "maximum": "50000", "minimum": "0", "location": "query", "type": "integer"}, "filter": {"repeated": true, "type": "string", "location": "query"}, "currency": {"type": "string", "location": "query"}, "startIndex": {"format": "int32", "maximum": "5000", "minimum": "0", "location": "query", "type": "integer"}, "dimension": {"repeated": true, "type": "string", "location": "query"}}, "id": "adsense.reports.generate", "httpMethod": "GET", "path": "reports", "response": {"$ref": "AdsenseReportsGenerateResponse"}}}}', true));
-    $this->customchannels = new CustomchannelsServiceResource($this, $this->serviceName, 'customchannels', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/adsense"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "adClientId": {"required": true, "type": "string", "location": "path"}, "maxResults": {"format": "int32", "maximum": "10000", "minimum": "0", "location": "query", "type": "integer"}}, "id": "adsense.customchannels.list", "httpMethod": "GET", "path": "adclients/{adClientId}/customchannels", "response": {"$ref": "CustomChannels"}}}}', true));
+    $this->urlchannels = new UrlchannelsServiceResource($this, $this->serviceName, 'urlchannels', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/adsense", "https://www.googleapis.com/auth/adsense.readonly"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "adClientId": {"required": true, "type": "string", "location": "path"}, "maxResults": {"format": "int32", "maximum": "10000", "minimum": "0", "location": "query", "type": "integer"}}, "id": "adsense.urlchannels.list", "httpMethod": "GET", "path": "adclients/{adClientId}/urlchannels", "response": {"$ref": "UrlChannels"}}}}', true));
+    $this->adunits = new AdunitsServiceResource($this, $this->serviceName, 'adunits', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/adsense", "https://www.googleapis.com/auth/adsense.readonly"], "parameters": {"includeInactive": {"type": "boolean", "location": "query"}, "pageToken": {"type": "string", "location": "query"}, "adClientId": {"required": true, "type": "string", "location": "path"}, "maxResults": {"format": "int32", "maximum": "10000", "minimum": "0", "location": "query", "type": "integer"}}, "id": "adsense.adunits.list", "httpMethod": "GET", "path": "adclients/{adClientId}/adunits", "response": {"$ref": "AdUnits"}}}}', true));
+    $this->adclients = new AdclientsServiceResource($this, $this->serviceName, 'adclients', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/adsense", "https://www.googleapis.com/auth/adsense.readonly"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "maxResults": {"format": "int32", "maximum": "10000", "minimum": "0", "location": "query", "type": "integer"}}, "response": {"$ref": "AdClients"}, "httpMethod": "GET", "path": "adclients", "id": "adsense.adclients.list"}}}', true));
+    $this->reports = new ReportsServiceResource($this, $this->serviceName, 'reports', json_decode('{"methods": {"generate": {"scopes": ["https://www.googleapis.com/auth/adsense", "https://www.googleapis.com/auth/adsense.readonly"], "parameters": {"sort": {"pattern": "(\\+|-)?[a-zA-Z_]+", "repeated": true, "type": "string", "location": "query"}, "startDate": {"pattern": "\\d{4}-\\d{2}-\\d{2}", "required": true, "type": "string", "location": "query"}, "endDate": {"pattern": "\\d{4}-\\d{2}-\\d{2}", "required": true, "type": "string", "location": "query"}, "locale": {"pattern": "[a-zA-Z_]+", "type": "string", "location": "query"}, "metric": {"pattern": "[a-zA-Z_]+", "repeated": true, "type": "string", "location": "query"}, "maxResults": {"format": "int32", "maximum": "50000", "minimum": "0", "location": "query", "type": "integer"}, "filter": {"pattern": "[a-zA-Z_]+(==|=@).+", "repeated": true, "type": "string", "location": "query"}, "currency": {"pattern": "[a-zA-Z]+", "type": "string", "location": "query"}, "startIndex": {"format": "int32", "maximum": "5000", "minimum": "0", "location": "query", "type": "integer"}, "dimension": {"pattern": "[a-zA-Z_]+", "repeated": true, "type": "string", "location": "query"}}, "id": "adsense.reports.generate", "httpMethod": "GET", "path": "reports", "response": {"$ref": "AdsenseReportsGenerateResponse"}}}}', true));
+    $this->customchannels = new CustomchannelsServiceResource($this, $this->serviceName, 'customchannels', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/adsense", "https://www.googleapis.com/auth/adsense.readonly"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "adClientId": {"required": true, "type": "string", "location": "path"}, "maxResults": {"format": "int32", "maximum": "10000", "minimum": "0", "location": "query", "type": "integer"}}, "id": "adsense.customchannels.list", "httpMethod": "GET", "path": "adclients/{adClientId}/customchannels", "response": {"$ref": "CustomChannels"}}}}', true));
   }
 }
 
@@ -271,6 +271,7 @@ class AdClient extends apiModel {
 class AdClients extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'AdClient';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $etag;
@@ -281,7 +282,7 @@ class AdClients extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(AdClient) */ $items) {
-    $this->assertIsArray($items, AdClient, __METHOD__);
+    $this->assertIsArray($items, 'AdClient', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -342,6 +343,7 @@ class AdUnit extends apiModel {
 class AdUnits extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'AdUnit';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $etag;
@@ -352,7 +354,7 @@ class AdUnits extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(AdUnit) */ $items) {
-    $this->assertIsArray($items, AdUnit, __METHOD__);
+    $this->assertIsArray($items, 'AdUnit', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -377,32 +379,33 @@ class AdsenseReportsGenerateResponse extends apiModel {
   public $warnings;
   public $totals;
   protected $__headersType = 'AdsenseReportsGenerateResponseHeaders';
+  protected $__headersDataType = 'array';
   public $headers;
   public $totalMatchedRows;
   public $averages;
   public function setRows(/* array(string) */ $rows) {
-    $this->assertIsArray($rows, string, __METHOD__);
+    $this->assertIsArray($rows, 'string', __METHOD__);
     $this->rows = $rows;
   }
   public function getRows() {
     return $this->rows;
   }
   public function setWarnings(/* array(string) */ $warnings) {
-    $this->assertIsArray($warnings, string, __METHOD__);
+    $this->assertIsArray($warnings, 'string', __METHOD__);
     $this->warnings = $warnings;
   }
   public function getWarnings() {
     return $this->warnings;
   }
   public function setTotals(/* array(string) */ $totals) {
-    $this->assertIsArray($totals, string, __METHOD__);
+    $this->assertIsArray($totals, 'string', __METHOD__);
     $this->totals = $totals;
   }
   public function getTotals() {
     return $this->totals;
   }
   public function setHeaders(/* array(AdsenseReportsGenerateResponseHeaders) */ $headers) {
-    $this->assertIsArray($headers, AdsenseReportsGenerateResponseHeaders, __METHOD__);
+    $this->assertIsArray($headers, 'AdsenseReportsGenerateResponseHeaders', __METHOD__);
     $this->headers = $headers;
   }
   public function getHeaders() {
@@ -415,7 +418,7 @@ class AdsenseReportsGenerateResponse extends apiModel {
     return $this->totalMatchedRows;
   }
   public function setAverages(/* array(string) */ $averages) {
-    $this->assertIsArray($averages, string, __METHOD__);
+    $this->assertIsArray($averages, 'string', __METHOD__);
     $this->averages = $averages;
   }
   public function getAverages() {
@@ -481,6 +484,7 @@ class CustomChannel extends apiModel {
 class CustomChannels extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'CustomChannel';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $etag;
@@ -491,7 +495,7 @@ class CustomChannels extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(CustomChannel) */ $items) {
-    $this->assertIsArray($items, CustomChannel, __METHOD__);
+    $this->assertIsArray($items, 'CustomChannel', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -538,6 +542,7 @@ class UrlChannel extends apiModel {
 class UrlChannels extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'UrlChannel';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $etag;
@@ -548,7 +553,7 @@ class UrlChannels extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(UrlChannel) */ $items) {
-    $this->assertIsArray($items, UrlChannel, __METHOD__);
+    $this->assertIsArray($items, 'UrlChannel', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {

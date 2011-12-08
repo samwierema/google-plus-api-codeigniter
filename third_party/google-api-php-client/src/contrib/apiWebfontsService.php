@@ -120,10 +120,11 @@ class Webfont extends apiModel {
 
 class WebfontList extends apiModel {
   protected $__itemsType = 'Webfont';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(Webfont) */ $items) {
-    $this->assertIsArray($items, Webfont, __METHOD__);
+    $this->assertIsArray($items, 'Webfont', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {

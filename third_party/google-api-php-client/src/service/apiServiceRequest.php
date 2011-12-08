@@ -80,14 +80,14 @@ class apiServiceRequest {
   }
 
   /**
-   * @return the $io
+   * @return apiIo $io
    */
   public function getIo() {
     return $this->io;
   }
 
   /**
-   * @param $io the $io to set
+   * @param apiIo $io
    */
   public function setIo($io) {
     $this->io = $io;
@@ -115,28 +115,28 @@ class apiServiceRequest {
   }
 
   /**
-   * @return the $rpcPath
+   * @return string $rpcPath
    */
   public function getRpcPath() {
     return $this->rpcPath;
   }
 
   /**
-   * @return the $rpcName
+   * @return string $rpcName
    */
   public function getRpcName() {
     return $this->rpcName;
   }
 
   /**
-   * @return the $httpMethod
+   * @return string $httpMethod
    */
   public function getHttpMethod() {
     return $this->httpMethod;
   }
 
   /**
-   * @return the $parameters
+   * @return array $parameters
    */
   public function getParameters() {
     return $this->parameters;
@@ -164,7 +164,7 @@ class apiServiceRequest {
   }
 
   /**
-   * @return the $batchKey
+   * @return string $batchKey
    */
   public function getBatchKey() {
     return $this->batchKey;

@@ -34,16 +34,17 @@ require_once 'service/apiServiceRequest.php';
     /**
      * Search public activities. (activities.search)
      *
+     * @param string $query Full-text search query string.
      * @param array $optParams Optional parameters. Valid optional parameters are listed below.
      *
      * @opt_param string orderBy Specifies how to order search results.
      * @opt_param string pageToken The continuation token, used to page through large result sets. To get the next page of results, set this parameter to the value of "nextPageToken" from the previous response. This token may be of any length.
      * @opt_param string maxResults The maximum number of activities to include in the response, used for paging. For any response, the actual number returned may be less than the specified maxResults.
-     * @opt_param string query Full-text search query string.
+     * @opt_param string language Specify the preferred language to search with. See search language code for available values.
      * @return ActivityFeed
      */
-    public function search($optParams = array()) {
-      $params = array();
+    public function search($query, $optParams = array()) {
+      $params = array('query' => $query);
       $params = array_merge($params, $optParams);
       $data = $this->__call('search', array($params));
       if ($this->useObjects()) {
@@ -174,15 +175,16 @@ require_once 'service/apiServiceRequest.php';
     /**
      * Search all public profiles. (people.search)
      *
+     * @param string $query Full-text search query string.
      * @param array $optParams Optional parameters. Valid optional parameters are listed below.
      *
      * @opt_param string pageToken The continuation token, used to page through large result sets. To get the next page of results, set this parameter to the value of "nextPageToken" from the previous response. This token may be of any length.
      * @opt_param string maxResults The maximum number of people to include in the response, used for paging. For any response, the actual number returned may be less than the specified maxResults.
-     * @opt_param string query Full-text search query string.
+     * @opt_param string language Specify the preferred language to search with. See search language codes for available values.
      * @return PeopleFeed
      */
-    public function search($optParams = array()) {
-      $params = array();
+    public function search($query, $optParams = array()) {
+      $params = array('query' => $query);
       $params = array_merge($params, $optParams);
       $data = $this->__call('search', array($params));
       if ($this->useObjects()) {
@@ -241,19 +243,20 @@ class apiPlusService extends apiService {
     $this->io = $apiClient->getIo();
 
     $apiClient->addService($this->serviceName, $this->version);
-    $this->activities = new ActivitiesServiceResource($this, $this->serviceName, 'activities', json_decode('{"methods": {"search": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"orderBy": {"default": "recent", "enum": ["best", "recent"], "location": "query", "type": "string"}, "pageToken": {"type": "string", "location": "query"}, "maxResults": {"format": "uint32", "default": "10", "maximum": "20", "minimum": "1", "location": "query", "type": "integer"}, "query": {"type": "string", "location": "query"}}, "response": {"$ref": "ActivityFeed"}, "httpMethod": "GET", "path": "activities", "id": "plus.activities.search"}, "list": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "alt": {"default": "json", "enum": ["json"], "location": "query", "type": "string"}, "userId": {"pattern": "me|[0-9]+", "required": true, "type": "string", "location": "path"}, "collection": {"required": true, "enum": ["public"], "location": "path", "type": "string"}, "maxResults": {"format": "uint32", "default": "20", "maximum": "100", "minimum": "1", "location": "query", "type": "integer"}}, "id": "plus.activities.list", "httpMethod": "GET", "path": "people/{userId}/activities/{collection}", "response": {"$ref": "ActivityFeed"}}, "get": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"activityId": {"required": true, "type": "string", "location": "path"}, "alt": {"default": "json", "enum": ["json"], "location": "query", "type": "string"}}, "id": "plus.activities.get", "httpMethod": "GET", "path": "activities/{activityId}", "response": {"$ref": "Activity"}}}}', true));
+    $this->activities = new ActivitiesServiceResource($this, $this->serviceName, 'activities', json_decode('{"methods": {"search": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"orderBy": {"default": "recent", "enum": ["best", "recent"], "location": "query", "type": "string"}, "pageToken": {"type": "string", "location": "query"}, "language": {"default": "", "type": "string", "location": "query"}, "maxResults": {"format": "uint32", "default": "10", "maximum": "20", "minimum": "1", "location": "query", "type": "integer"}, "query": {"required": true, "type": "string", "location": "query"}}, "id": "plus.activities.search", "httpMethod": "GET", "path": "activities", "response": {"$ref": "ActivityFeed"}}, "list": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "alt": {"default": "json", "enum": ["json"], "location": "query", "type": "string"}, "userId": {"pattern": "me|[0-9]+", "required": true, "type": "string", "location": "path"}, "collection": {"required": true, "enum": ["public"], "location": "path", "type": "string"}, "maxResults": {"format": "uint32", "default": "20", "maximum": "100", "minimum": "1", "location": "query", "type": "integer"}}, "id": "plus.activities.list", "httpMethod": "GET", "path": "people/{userId}/activities/{collection}", "response": {"$ref": "ActivityFeed"}}, "get": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"activityId": {"required": true, "type": "string", "location": "path"}, "alt": {"default": "json", "enum": ["json"], "location": "query", "type": "string"}}, "id": "plus.activities.get", "httpMethod": "GET", "path": "activities/{activityId}", "response": {"$ref": "Activity"}}}}', true));
     $this->comments = new CommentsServiceResource($this, $this->serviceName, 'comments', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "activityId": {"required": true, "type": "string", "location": "path"}, "alt": {"default": "json", "enum": ["json"], "location": "query", "type": "string"}, "maxResults": {"format": "uint32", "default": "20", "maximum": "100", "minimum": "0", "location": "query", "type": "integer"}}, "id": "plus.comments.list", "httpMethod": "GET", "path": "activities/{activityId}/comments", "response": {"$ref": "CommentFeed"}}, "get": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"commentId": {"required": true, "type": "string", "location": "path"}}, "id": "plus.comments.get", "httpMethod": "GET", "path": "comments/{commentId}", "response": {"$ref": "Comment"}}}}', true));
-    $this->people = new PeopleServiceResource($this, $this->serviceName, 'people', json_decode('{"methods": {"listByActivity": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "activityId": {"required": true, "type": "string", "location": "path"}, "collection": {"required": true, "enum": ["plusoners", "resharers"], "location": "path", "type": "string"}, "maxResults": {"format": "uint32", "default": "20", "maximum": "100", "minimum": "1", "location": "query", "type": "integer"}}, "id": "plus.people.listByActivity", "httpMethod": "GET", "path": "activities/{activityId}/people/{collection}", "response": {"$ref": "PeopleFeed"}}, "search": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "maxResults": {"format": "uint32", "default": "10", "maximum": "20", "minimum": "1", "location": "query", "type": "integer"}, "query": {"type": "string", "location": "query"}}, "response": {"$ref": "PeopleFeed"}, "httpMethod": "GET", "path": "people", "id": "plus.people.search"}, "get": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"userId": {"pattern": "me|[0-9]+", "required": true, "type": "string", "location": "path"}}, "id": "plus.people.get", "httpMethod": "GET", "path": "people/{userId}", "response": {"$ref": "Person"}}}}', true));
+    $this->people = new PeopleServiceResource($this, $this->serviceName, 'people', json_decode('{"methods": {"listByActivity": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "activityId": {"required": true, "type": "string", "location": "path"}, "collection": {"required": true, "enum": ["plusoners", "resharers"], "location": "path", "type": "string"}, "maxResults": {"format": "uint32", "default": "20", "maximum": "100", "minimum": "1", "location": "query", "type": "integer"}}, "id": "plus.people.listByActivity", "httpMethod": "GET", "path": "activities/{activityId}/people/{collection}", "response": {"$ref": "PeopleFeed"}}, "search": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"pageToken": {"type": "string", "location": "query"}, "language": {"default": "", "type": "string", "location": "query"}, "maxResults": {"format": "uint32", "default": "10", "maximum": "20", "minimum": "1", "location": "query", "type": "integer"}, "query": {"required": true, "type": "string", "location": "query"}}, "id": "plus.people.search", "httpMethod": "GET", "path": "people", "response": {"$ref": "PeopleFeed"}}, "get": {"scopes": ["https://www.googleapis.com/auth/plus.me"], "parameters": {"userId": {"pattern": "me|[0-9]+", "required": true, "type": "string", "location": "path"}}, "id": "plus.people.get", "httpMethod": "GET", "path": "people/{userId}", "response": {"$ref": "Person"}}}}', true));
   }
 }
 
 class Acl extends apiModel {
   protected $__itemsType = 'PlusAclentryResource';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $description;
   public function setItems(/* array(PlusAclentryResource) */ $items) {
-    $this->assertIsArray($items, PlusAclentryResource, __METHOD__);
+    $this->assertIsArray($items, 'PlusAclentryResource', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -278,16 +281,20 @@ class Activity extends apiModel {
   public $kind;
   public $updated;
   protected $__providerType = 'ActivityProvider';
+  protected $__providerDataType = '';
   public $provider;
   public $title;
   public $url;
   protected $__objectType = 'ActivityObject';
+  protected $__objectDataType = '';
   public $object;
   public $placeId;
   protected $__actorType = 'ActivityActor';
+  protected $__actorDataType = '';
   public $actor;
   public $id;
   protected $__accessType = 'Acl';
+  protected $__accessDataType = '';
   public $access;
   public $verb;
   public $geocode;
@@ -416,6 +423,7 @@ class Activity extends apiModel {
 class ActivityActor extends apiModel {
   public $url;
   protected $__imageType = 'ActivityActorImage';
+  protected $__imageDataType = '';
   public $image;
   public $displayName;
   public $id;
@@ -460,6 +468,7 @@ class ActivityFeed extends apiModel {
   public $kind;
   public $title;
   protected $__itemsType = 'Activity';
+  protected $__itemsDataType = 'array';
   public $items;
   public $updated;
   public $nextLink;
@@ -484,7 +493,7 @@ class ActivityFeed extends apiModel {
     return $this->title;
   }
   public function setItems(/* array(Activity) */ $items) {
-    $this->assertIsArray($items, Activity, __METHOD__);
+    $this->assertIsArray($items, 'Activity', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -518,17 +527,22 @@ class ActivityFeed extends apiModel {
 
 class ActivityObject extends apiModel {
   protected $__resharersType = 'ActivityObjectResharers';
+  protected $__resharersDataType = '';
   public $resharers;
   protected $__attachmentsType = 'ActivityObjectAttachments';
+  protected $__attachmentsDataType = 'array';
   public $attachments;
   public $originalContent;
   protected $__plusonersType = 'ActivityObjectPlusoners';
+  protected $__plusonersDataType = '';
   public $plusoners;
   protected $__actorType = 'ActivityObjectActor';
+  protected $__actorDataType = '';
   public $actor;
   public $content;
   public $url;
   protected $__repliesType = 'ActivityObjectReplies';
+  protected $__repliesDataType = '';
   public $replies;
   public $id;
   public $objectType;
@@ -539,7 +553,7 @@ class ActivityObject extends apiModel {
     return $this->resharers;
   }
   public function setAttachments(/* array(ActivityObjectAttachments) */ $attachments) {
-    $this->assertIsArray($attachments, ActivityObjectAttachments, __METHOD__);
+    $this->assertIsArray($attachments, 'ActivityObjectAttachments', __METHOD__);
     $this->attachments = $attachments;
   }
   public function getAttachments() {
@@ -598,6 +612,7 @@ class ActivityObject extends apiModel {
 class ActivityObjectActor extends apiModel {
   public $url;
   protected $__imageType = 'ActivityObjectActorImage';
+  protected $__imageDataType = '';
   public $image;
   public $displayName;
   public $id;
@@ -640,17 +655,22 @@ class ActivityObjectActorImage extends apiModel {
 class ActivityObjectAttachments extends apiModel {
   public $displayName;
   protected $__contentsourceType = 'ActivityObjectAttachmentsContentsource';
+  protected $__contentsourceDataType = '';
   public $contentsource;
   protected $__fullImageType = 'ActivityObjectAttachmentsFullImage';
+  protected $__fullImageDataType = '';
   public $fullImage;
   public $url;
   protected $__imageType = 'ActivityObjectAttachmentsImage';
+  protected $__imageDataType = '';
   public $image;
   public $content;
   protected $__embedType = 'ActivityObjectAttachmentsEmbed';
+  protected $__embedDataType = '';
   public $embed;
   public $id;
   protected $__categoriesType = 'ActivityObjectAttachmentsCategories';
+  protected $__categoriesDataType = 'array';
   public $categories;
   public $objectType;
   public function setDisplayName($displayName) {
@@ -702,7 +722,7 @@ class ActivityObjectAttachments extends apiModel {
     return $this->id;
   }
   public function setCategories(/* array(ActivityObjectAttachmentsCategories) */ $categories) {
-    $this->assertIsArray($categories, ActivityObjectAttachmentsCategories, __METHOD__);
+    $this->assertIsArray($categories, 'ActivityObjectAttachmentsCategories', __METHOD__);
     $this->categories = $categories;
   }
   public function getCategories() {
@@ -899,19 +919,22 @@ class ActivityProvider extends apiModel {
 
 class Comment extends apiModel {
   protected $__inReplyToType = 'CommentInReplyTo';
+  protected $__inReplyToDataType = 'array';
   public $inReplyTo;
   public $kind;
   protected $__objectType = 'CommentObject';
+  protected $__objectDataType = '';
   public $object;
   public $updated;
   protected $__actorType = 'CommentActor';
+  protected $__actorDataType = '';
   public $actor;
   public $verb;
   public $published;
   public $id;
   public $selfLink;
   public function setInReplyTo(/* array(CommentInReplyTo) */ $inReplyTo) {
-    $this->assertIsArray($inReplyTo, CommentInReplyTo, __METHOD__);
+    $this->assertIsArray($inReplyTo, 'CommentInReplyTo', __METHOD__);
     $this->inReplyTo = $inReplyTo;
   }
   public function getInReplyTo() {
@@ -970,6 +993,7 @@ class Comment extends apiModel {
 class CommentActor extends apiModel {
   public $url;
   protected $__imageType = 'CommentActorImage';
+  protected $__imageDataType = '';
   public $image;
   public $displayName;
   public $id;
@@ -1014,6 +1038,7 @@ class CommentFeed extends apiModel {
   public $kind;
   public $title;
   protected $__itemsType = 'Comment';
+  protected $__itemsDataType = 'array';
   public $items;
   public $updated;
   public $nextLink;
@@ -1037,7 +1062,7 @@ class CommentFeed extends apiModel {
     return $this->title;
   }
   public function setItems(/* array(Comment) */ $items) {
-    $this->assertIsArray($items, Comment, __METHOD__);
+    $this->assertIsArray($items, 'Comment', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -1100,6 +1125,7 @@ class CommentObject extends apiModel {
 class PeopleFeed extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'Person';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $selfLink;
@@ -1111,7 +1137,7 @@ class PeopleFeed extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(Person) */ $items) {
-    $this->assertIsArray($items, Person, __METHOD__);
+    $this->assertIsArray($items, 'Person', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -1140,29 +1166,36 @@ class PeopleFeed extends apiModel {
 class Person extends apiModel {
   public $relationshipStatus;
   protected $__organizationsType = 'PersonOrganizations';
+  protected $__organizationsDataType = 'array';
   public $organizations;
   public $kind;
   public $displayName;
   protected $__nameType = 'PersonName';
+  protected $__nameDataType = '';
   public $name;
   public $url;
   public $gender;
   public $aboutMe;
   public $tagline;
   protected $__urlsType = 'PersonUrls';
+  protected $__urlsDataType = 'array';
   public $urls;
   protected $__placesLivedType = 'PersonPlacesLived';
+  protected $__placesLivedDataType = 'array';
   public $placesLived;
   protected $__emailsType = 'PersonEmails';
+  protected $__emailsDataType = 'array';
   public $emails;
   public $nickname;
   public $birthday;
   protected $__imageType = 'PersonImage';
+  protected $__imageDataType = '';
   public $image;
   public $hasApp;
   public $id;
   public $languagesSpoken;
   public $currentLocation;
+  public $objectType;
   public function setRelationshipStatus($relationshipStatus) {
     $this->relationshipStatus = $relationshipStatus;
   }
@@ -1170,7 +1203,7 @@ class Person extends apiModel {
     return $this->relationshipStatus;
   }
   public function setOrganizations(/* array(PersonOrganizations) */ $organizations) {
-    $this->assertIsArray($organizations, PersonOrganizations, __METHOD__);
+    $this->assertIsArray($organizations, 'PersonOrganizations', __METHOD__);
     $this->organizations = $organizations;
   }
   public function getOrganizations() {
@@ -1219,21 +1252,21 @@ class Person extends apiModel {
     return $this->tagline;
   }
   public function setUrls(/* array(PersonUrls) */ $urls) {
-    $this->assertIsArray($urls, PersonUrls, __METHOD__);
+    $this->assertIsArray($urls, 'PersonUrls', __METHOD__);
     $this->urls = $urls;
   }
   public function getUrls() {
     return $this->urls;
   }
   public function setPlacesLived(/* array(PersonPlacesLived) */ $placesLived) {
-    $this->assertIsArray($placesLived, PersonPlacesLived, __METHOD__);
+    $this->assertIsArray($placesLived, 'PersonPlacesLived', __METHOD__);
     $this->placesLived = $placesLived;
   }
   public function getPlacesLived() {
     return $this->placesLived;
   }
   public function setEmails(/* array(PersonEmails) */ $emails) {
-    $this->assertIsArray($emails, PersonEmails, __METHOD__);
+    $this->assertIsArray($emails, 'PersonEmails', __METHOD__);
     $this->emails = $emails;
   }
   public function getEmails() {
@@ -1270,7 +1303,7 @@ class Person extends apiModel {
     return $this->id;
   }
   public function setLanguagesSpoken(/* array(string) */ $languagesSpoken) {
-    $this->assertIsArray($languagesSpoken, string, __METHOD__);
+    $this->assertIsArray($languagesSpoken, 'string', __METHOD__);
     $this->languagesSpoken = $languagesSpoken;
   }
   public function getLanguagesSpoken() {
@@ -1281,6 +1314,12 @@ class Person extends apiModel {
   }
   public function getCurrentLocation() {
     return $this->currentLocation;
+  }
+  public function setObjectType($objectType) {
+    $this->objectType = $objectType;
+  }
+  public function getObjectType() {
+    return $this->objectType;
   }
 }
 

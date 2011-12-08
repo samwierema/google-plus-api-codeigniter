@@ -37,7 +37,7 @@ require_once 'service/apiServiceRequest.php';
      *
      * @param string $seriesId The decimal ID of the Series.
      * @param string $submissionId The decimal ID of the Submission within the Series.
-     * @param $postBody the {@link Vote}
+     * @param Vote $postBody
      * @param array $optParams Optional parameters. Valid optional parameters are listed below.
      *
      * @opt_param string unauthToken User identifier for unauthenticated usage mode
@@ -59,7 +59,7 @@ require_once 'service/apiServiceRequest.php';
      *
      * @param string $seriesId The decimal ID of the Series.
      * @param string $submissionId The decimal ID of the Submission within the Series.
-     * @param $postBody the {@link Vote}
+     * @param Vote $postBody
      * @param array $optParams Optional parameters. Valid optional parameters are listed below.
      *
      * @opt_param string userId
@@ -102,7 +102,7 @@ require_once 'service/apiServiceRequest.php';
      *
      * @param string $seriesId The decimal ID of the Series.
      * @param string $submissionId The decimal ID of the Submission within the Series.
-     * @param $postBody the {@link Vote}
+     * @param Vote $postBody
      * @param array $optParams Optional parameters. Valid optional parameters are listed below.
      *
      * @opt_param string userId
@@ -161,7 +161,7 @@ require_once 'service/apiServiceRequest.php';
      * @param string $seriesId The decimal ID of the Series.
      * @param string $topicId The decimal ID of the Topic within the Series.
      * @param string $parentSubmissionId The decimal ID of the parent Submission within the Series.
-     * @param $postBody the {@link Submission}
+     * @param Submission $postBody
      * @param array $optParams Optional parameters. Valid optional parameters are listed below.
      *
      * @opt_param string unauthToken User identifier for unauthenticated usage mode
@@ -222,7 +222,7 @@ require_once 'service/apiServiceRequest.php';
      *
      * @param string $seriesId The decimal ID of the Series.
      * @param string $submissionId The decimal ID of the Submission within the Series.
-     * @param $postBody the {@link Tag}
+     * @param Tag $postBody
      * @return Tag
      */
     public function insert($seriesId, $submissionId, Tag $postBody) {
@@ -279,7 +279,7 @@ require_once 'service/apiServiceRequest.php';
     /**
      * Inserts a new series. (series.insert)
      *
-     * @param $postBody the {@link Series}
+     * @param Series $postBody
      * @return Series
      */
     public function insert(Series $postBody) {
@@ -295,7 +295,7 @@ require_once 'service/apiServiceRequest.php';
      * Updates the specified series. This method supports patch semantics. (series.patch)
      *
      * @param string $seriesId The decimal ID of the Series.
-     * @param $postBody the {@link Series}
+     * @param Series $postBody
      * @return Series
      */
     public function patch($seriesId, Series $postBody) {
@@ -331,7 +331,7 @@ require_once 'service/apiServiceRequest.php';
      * Updates the specified series. (series.update)
      *
      * @param string $seriesId The decimal ID of the Series.
-     * @param $postBody the {@link Series}
+     * @param Series $postBody
      * @return Series
      */
     public function update($seriesId, Series $postBody) {
@@ -452,7 +452,7 @@ require_once 'service/apiServiceRequest.php';
      * Inserts a new topic into the specified series. (topics.insert)
      *
      * @param string $seriesId The decimal ID of the Series.
-     * @param $postBody the {@link Topic}
+     * @param Topic $postBody
      * @return Topic
      */
     public function insert($seriesId, Topic $postBody) {
@@ -491,7 +491,7 @@ require_once 'service/apiServiceRequest.php';
      *
      * @param string $seriesId The decimal ID of the Series.
      * @param string $topicId The decimal ID of the Topic within the Series.
-     * @param $postBody the {@link Topic}
+     * @param Topic $postBody
      * @return Topic
      */
     public function update($seriesId, $topicId, Topic $postBody) {
@@ -624,7 +624,7 @@ require_once 'service/apiServiceRequest.php';
      * Updates the profile information for the authenticated user. This method supports patch semantics.
      * (profiles.patch)
      *
-     * @param $postBody the {@link Profile}
+     * @param Profile $postBody
      * @return Profile
      */
     public function patch(Profile $postBody) {
@@ -639,7 +639,7 @@ require_once 'service/apiServiceRequest.php';
     /**
      * Updates the profile information for the authenticated user. (profiles.update)
      *
-     * @param $postBody the {@link Profile}
+     * @param Profile $postBody
      * @return Profile
      */
     public function update(Profile $postBody) {
@@ -806,7 +806,7 @@ require_once 'service/apiServiceRequest.php';
      *
      * @param string $seriesId The decimal ID of the Series.
      * @param string $topicId The decimal ID of the Topic within the Series.
-     * @param $postBody the {@link Submission}
+     * @param Submission $postBody
      * @param array $optParams Optional parameters. Valid optional parameters are listed below.
      *
      * @opt_param string unauthToken User identifier for unauthenticated usage mode
@@ -903,6 +903,7 @@ class apiModeratorService extends apiService {
 
 class ModeratorTopicsResourcePartial extends apiModel {
   protected $__idType = 'ModeratorTopicsResourcePartialId';
+  protected $__idDataType = '';
   public $id;
   public function setId(ModeratorTopicsResourcePartialId $id) {
     $this->id = $id;
@@ -949,8 +950,10 @@ class ModeratorVotesResourcePartial extends apiModel {
 class Profile extends apiModel {
   public $kind;
   protected $__attributionType = 'ProfileAttribution';
+  protected $__attributionDataType = '';
   public $attribution;
   protected $__idType = 'ProfileId';
+  protected $__idDataType = '';
   public $id;
   public function setKind($kind) {
     $this->kind = $kind;
@@ -974,6 +977,7 @@ class Profile extends apiModel {
 
 class ProfileAttribution extends apiModel {
   protected $__geoType = 'ProfileAttributionGeo';
+  protected $__geoDataType = '';
   public $geo;
   public $displayName;
   public $location;
@@ -1042,6 +1046,7 @@ class Series extends apiModel {
   public $kind;
   public $description;
   protected $__rulesType = 'SeriesRules';
+  protected $__rulesDataType = '';
   public $rules;
   public $unauthVotingAllowed;
   public $videoSubmissionAllowed;
@@ -1050,8 +1055,10 @@ class Series extends apiModel {
   public $anonymousSubmissionAllowed;
   public $unauthSubmissionAllowed;
   protected $__idType = 'SeriesId';
+  protected $__idDataType = '';
   public $id;
   protected $__countersType = 'SeriesCounters';
+  protected $__countersDataType = '';
   public $counters;
   public function setKind($kind) {
     $this->kind = $kind;
@@ -1185,10 +1192,11 @@ class SeriesId extends apiModel {
 
 class SeriesList extends apiModel {
   protected $__itemsType = 'Series';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(Series) */ $items) {
-    $this->assertIsArray($items, Series, __METHOD__);
+    $this->assertIsArray($items, 'Series', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -1204,8 +1212,10 @@ class SeriesList extends apiModel {
 
 class SeriesRules extends apiModel {
   protected $__votesType = 'SeriesRulesVotes';
+  protected $__votesDataType = '';
   public $votes;
   protected $__submissionsType = 'SeriesRulesSubmissions';
+  protected $__submissionsDataType = '';
   public $submissions;
   public function setVotes(SeriesRulesVotes $votes) {
     $this->votes = $votes;
@@ -1258,24 +1268,32 @@ class SeriesRulesVotes extends apiModel {
 class Submission extends apiModel {
   public $kind;
   protected $__attributionType = 'SubmissionAttribution';
+  protected $__attributionDataType = '';
   public $attribution;
   public $created;
   public $text;
   protected $__topicsType = 'ModeratorTopicsResourcePartial';
+  protected $__topicsDataType = 'array';
   public $topics;
   public $author;
   protected $__translationsType = 'SubmissionTranslations';
+  protected $__translationsDataType = 'array';
   public $translations;
   protected $__parentSubmissionIdType = 'SubmissionParentSubmissionId';
+  protected $__parentSubmissionIdDataType = '';
   public $parentSubmissionId;
   protected $__voteType = 'ModeratorVotesResourcePartial';
+  protected $__voteDataType = '';
   public $vote;
   public $attachmentUrl;
   protected $__geoType = 'SubmissionGeo';
+  protected $__geoDataType = '';
   public $geo;
   protected $__idType = 'SubmissionId';
+  protected $__idDataType = '';
   public $id;
   protected $__countersType = 'SubmissionCounters';
+  protected $__countersDataType = '';
   public $counters;
   public function setKind($kind) {
     $this->kind = $kind;
@@ -1302,7 +1320,7 @@ class Submission extends apiModel {
     return $this->text;
   }
   public function setTopics(/* array(ModeratorTopicsResourcePartial) */ $topics) {
-    $this->assertIsArray($topics, ModeratorTopicsResourcePartial, __METHOD__);
+    $this->assertIsArray($topics, 'ModeratorTopicsResourcePartial', __METHOD__);
     $this->topics = $topics;
   }
   public function getTopics() {
@@ -1315,7 +1333,7 @@ class Submission extends apiModel {
     return $this->author;
   }
   public function setTranslations(/* array(SubmissionTranslations) */ $translations) {
-    $this->assertIsArray($translations, SubmissionTranslations, __METHOD__);
+    $this->assertIsArray($translations, 'SubmissionTranslations', __METHOD__);
     $this->translations = $translations;
   }
   public function getTranslations() {
@@ -1450,10 +1468,11 @@ class SubmissionId extends apiModel {
 
 class SubmissionList extends apiModel {
   protected $__itemsType = 'Submission';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(Submission) */ $items) {
-    $this->assertIsArray($items, Submission, __METHOD__);
+    $this->assertIsArray($items, 'Submission', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -1505,6 +1524,7 @@ class Tag extends apiModel {
   public $text;
   public $kind;
   protected $__idType = 'TagId';
+  protected $__idDataType = '';
   public $id;
   public function setText($text) {
     $this->text = $text;
@@ -1552,10 +1572,11 @@ class TagId extends apiModel {
 
 class TagList extends apiModel {
   protected $__itemsType = 'Tag';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(Tag) */ $items) {
-    $this->assertIsArray($items, Tag, __METHOD__);
+    $this->assertIsArray($items, 'Tag', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -1573,13 +1594,17 @@ class Topic extends apiModel {
   public $kind;
   public $description;
   protected $__rulesType = 'TopicRules';
+  protected $__rulesDataType = '';
   public $rules;
   protected $__featuredSubmissionType = 'Submission';
+  protected $__featuredSubmissionDataType = '';
   public $featuredSubmission;
   public $presenter;
   protected $__countersType = 'TopicCounters';
+  protected $__countersDataType = '';
   public $counters;
   protected $__idType = 'TopicId';
+  protected $__idDataType = '';
   public $id;
   public $name;
   public function setKind($kind) {
@@ -1696,10 +1721,11 @@ class TopicId extends apiModel {
 
 class TopicList extends apiModel {
   protected $__itemsType = 'Topic';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(Topic) */ $items) {
-    $this->assertIsArray($items, Topic, __METHOD__);
+    $this->assertIsArray($items, 'Topic', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -1715,8 +1741,10 @@ class TopicList extends apiModel {
 
 class TopicRules extends apiModel {
   protected $__votesType = 'TopicRulesVotes';
+  protected $__votesDataType = '';
   public $votes;
   protected $__submissionsType = 'TopicRulesSubmissions';
+  protected $__submissionsDataType = '';
   public $submissions;
   public function setVotes(TopicRulesVotes $votes) {
     $this->votes = $votes;
@@ -1770,6 +1798,7 @@ class Vote extends apiModel {
   public $vote;
   public $flag;
   protected $__idType = 'VoteId';
+  protected $__idDataType = '';
   public $id;
   public $kind;
   public function setVote($vote) {
@@ -1817,10 +1846,11 @@ class VoteId extends apiModel {
 
 class VoteList extends apiModel {
   protected $__itemsType = 'Vote';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(Vote) */ $items) {
-    $this->assertIsArray($items, Vote, __METHOD__);
+    $this->assertIsArray($items, 'Vote', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {

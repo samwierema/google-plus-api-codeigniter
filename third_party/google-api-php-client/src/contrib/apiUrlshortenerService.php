@@ -34,7 +34,7 @@ require_once 'service/apiServiceRequest.php';
     /**
      * Creates a new short URL. (url.insert)
      *
-     * @param $postBody the {@link Url}
+     * @param Url $postBody
      * @return Url
      */
     public function insert(Url $postBody) {
@@ -124,12 +124,16 @@ class apiUrlshortenerService extends apiService {
 class AnalyticsSnapshot extends apiModel {
   public $shortUrlClicks;
   protected $__countriesType = 'StringCount';
+  protected $__countriesDataType = 'array';
   public $countries;
   protected $__platformsType = 'StringCount';
+  protected $__platformsDataType = 'array';
   public $platforms;
   protected $__browsersType = 'StringCount';
+  protected $__browsersDataType = 'array';
   public $browsers;
   protected $__referrersType = 'StringCount';
+  protected $__referrersDataType = 'array';
   public $referrers;
   public $longUrlClicks;
   public function setShortUrlClicks($shortUrlClicks) {
@@ -139,28 +143,28 @@ class AnalyticsSnapshot extends apiModel {
     return $this->shortUrlClicks;
   }
   public function setCountries(/* array(StringCount) */ $countries) {
-    $this->assertIsArray($countries, StringCount, __METHOD__);
+    $this->assertIsArray($countries, 'StringCount', __METHOD__);
     $this->countries = $countries;
   }
   public function getCountries() {
     return $this->countries;
   }
   public function setPlatforms(/* array(StringCount) */ $platforms) {
-    $this->assertIsArray($platforms, StringCount, __METHOD__);
+    $this->assertIsArray($platforms, 'StringCount', __METHOD__);
     $this->platforms = $platforms;
   }
   public function getPlatforms() {
     return $this->platforms;
   }
   public function setBrowsers(/* array(StringCount) */ $browsers) {
-    $this->assertIsArray($browsers, StringCount, __METHOD__);
+    $this->assertIsArray($browsers, 'StringCount', __METHOD__);
     $this->browsers = $browsers;
   }
   public function getBrowsers() {
     return $this->browsers;
   }
   public function setReferrers(/* array(StringCount) */ $referrers) {
-    $this->assertIsArray($referrers, StringCount, __METHOD__);
+    $this->assertIsArray($referrers, 'StringCount', __METHOD__);
     $this->referrers = $referrers;
   }
   public function getReferrers() {
@@ -176,14 +180,19 @@ class AnalyticsSnapshot extends apiModel {
 
 class AnalyticsSummary extends apiModel {
   protected $__weekType = 'AnalyticsSnapshot';
+  protected $__weekDataType = '';
   public $week;
   protected $__allTimeType = 'AnalyticsSnapshot';
+  protected $__allTimeDataType = '';
   public $allTime;
   protected $__twoHoursType = 'AnalyticsSnapshot';
+  protected $__twoHoursDataType = '';
   public $twoHours;
   protected $__dayType = 'AnalyticsSnapshot';
+  protected $__dayDataType = '';
   public $day;
   protected $__monthType = 'AnalyticsSnapshot';
+  protected $__monthDataType = '';
   public $month;
   public function setWeek(AnalyticsSnapshot $week) {
     $this->week = $week;
@@ -239,6 +248,7 @@ class Url extends apiModel {
   public $kind;
   public $created;
   protected $__analyticsType = 'AnalyticsSummary';
+  protected $__analyticsDataType = '';
   public $analytics;
   public $longUrl;
   public $id;
@@ -283,6 +293,7 @@ class Url extends apiModel {
 class UrlHistory extends apiModel {
   public $nextPageToken;
   protected $__itemsType = 'Url';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public $itemsPerPage;
@@ -294,7 +305,7 @@ class UrlHistory extends apiModel {
     return $this->nextPageToken;
   }
   public function setItems(/* array(Url) */ $items) {
-    $this->assertIsArray($items, Url, __METHOD__);
+    $this->assertIsArray($items, 'Url', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {

@@ -94,6 +94,7 @@ require_once 'service/apiServiceRequest.php';
      * @param array $optParams Optional parameters. Valid optional parameters are listed below.
      *
      * @opt_param string country ISO-3166-1 code to override the IP-based location.
+     * @opt_param bool showPreorders Set to true to show pre-ordered books. Defaults to false.
      * @opt_param string maxResults Maximum number of results to return
      * @opt_param string source String to identify the originator of this request.
      * @opt_param string startIndex Index of the first element to return (starts at 0)
@@ -140,6 +141,7 @@ require_once 'service/apiServiceRequest.php';
      * @opt_param string startIndex Index of the first result to return (starts at 0)
      * @opt_param string download Restrict to volumes by download availability.
      * @opt_param string partner Identifier of partner for whom to restrict and brand results.
+     * @opt_param bool showPreorders Set to true to show books available for preorder. Defaults to false.
      * @return Volumes
      */
     public function listVolumes($q, $optParams = array()) {
@@ -309,6 +311,7 @@ require_once 'service/apiServiceRequest.php';
      * @opt_param string shelf The bookshelf id or name retrieve volumes for.
      * @opt_param string projection Restrict information returned to a set of selected fields.
      * @opt_param string country ISO-3166-1 code to override the IP-based location.
+     * @opt_param bool showPreorders Set to true to show pre-ordered books. Defaults to false.
      * @opt_param string maxResults Maximum number of results to return
      * @opt_param string q Full-text search query string in this bookshelf.
      * @opt_param string source String to identify the originator of this request.
@@ -360,9 +363,9 @@ class apiBooksService extends apiService {
     $this->io = $apiClient->getIo();
 
     $apiClient->addService($this->serviceName, $this->version);
-    $this->bookshelves = new BookshelvesServiceResource($this, $this->serviceName, 'bookshelves', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "userId": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "id": "books.bookshelves.list", "httpMethod": "GET", "path": "users/{userId}/bookshelves", "response": {"$ref": "Bookshelves"}}, "get": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "userId": {"required": true, "type": "string", "location": "path"}, "shelf": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "id": "books.bookshelves.get", "httpMethod": "GET", "path": "users/{userId}/bookshelves/{shelf}", "response": {"$ref": "Bookshelf"}}}, "resources": {"volumes": {"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "userId": {"required": true, "type": "string", "location": "path"}, "maxResults": {"format": "uint32", "minimum": "0", "type": "integer", "location": "query"}, "source": {"type": "string", "location": "query"}, "startIndex": {"format": "uint32", "minimum": "0", "type": "integer", "location": "query"}, "shelf": {"required": true, "type": "string", "location": "path"}}, "id": "books.bookshelves.volumes.list", "httpMethod": "GET", "path": "users/{userId}/bookshelves/{shelf}/volumes", "response": {"$ref": "Volumes"}}}}}}', true));
-    $this->volumes = new VolumesServiceResource($this, $this->serviceName, 'volumes', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"orderBy": {"enum": ["newest", "relevance"], "type": "string", "location": "query"}, "filter": {"enum": ["ebooks", "free-ebooks", "full", "paid-ebooks", "partial"], "type": "string", "location": "query"}, "projection": {"enum": ["full", "lite"], "type": "string", "location": "query"}, "libraryRestrict": {"enum": ["my-library", "no-restrict"], "type": "string", "location": "query"}, "langRestrict": {"type": "string", "location": "query"}, "country": {"type": "string", "location": "query"}, "printType": {"enum": ["all", "books", "magazines"], "type": "string", "location": "query"}, "maxResults": {"format": "uint32", "maximum": "40", "minimum": "0", "location": "query", "type": "integer"}, "q": {"required": true, "type": "string", "location": "query"}, "source": {"type": "string", "location": "query"}, "startIndex": {"format": "uint32", "minimum": "0", "type": "integer", "location": "query"}, "download": {"enum": ["epub"], "type": "string", "location": "query"}, "partner": {"type": "string", "location": "query"}}, "id": "books.volumes.list", "httpMethod": "GET", "path": "volumes", "response": {"$ref": "Volumes"}}, "get": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"partner": {"type": "string", "location": "query"}, "source": {"type": "string", "location": "query"}, "projection": {"enum": ["full", "lite"], "type": "string", "location": "query"}, "volumeId": {"required": true, "type": "string", "location": "path"}, "country": {"type": "string", "location": "query"}}, "id": "books.volumes.get", "httpMethod": "GET", "path": "volumes/{volumeId}", "response": {"$ref": "Volume"}}}}', true));
-    $this->mylibrary = new MylibraryServiceResource($this, $this->serviceName, 'mylibrary', json_decode('{"resources": {"bookshelves": {"methods": {"clearVolumes": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "shelf": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "httpMethod": "POST", "path": "mylibrary/bookshelves/{shelf}/clearVolumes", "id": "books.mylibrary.bookshelves.clearVolumes"}, "removeVolume": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "volumeId": {"required": true, "type": "string", "location": "query"}, "shelf": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "httpMethod": "POST", "path": "mylibrary/bookshelves/{shelf}/removeVolume", "id": "books.mylibrary.bookshelves.removeVolume"}, "list": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "source": {"type": "string", "location": "query"}}, "response": {"$ref": "Bookshelves"}, "httpMethod": "GET", "path": "mylibrary/bookshelves", "id": "books.mylibrary.bookshelves.list"}, "addVolume": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "volumeId": {"required": true, "type": "string", "location": "query"}, "shelf": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "httpMethod": "POST", "path": "mylibrary/bookshelves/{shelf}/addVolume", "id": "books.mylibrary.bookshelves.addVolume"}, "get": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "shelf": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "id": "books.mylibrary.bookshelves.get", "httpMethod": "GET", "path": "mylibrary/bookshelves/{shelf}", "response": {"$ref": "Bookshelf"}}}, "resources": {"volumes": {"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"projection": {"enum": ["full", "lite"], "type": "string", "location": "query"}, "country": {"type": "string", "location": "query"}, "maxResults": {"format": "uint32", "minimum": "0", "type": "integer", "location": "query"}, "q": {"type": "string", "location": "query"}, "source": {"type": "string", "location": "query"}, "startIndex": {"format": "uint32", "minimum": "0", "type": "integer", "location": "query"}, "shelf": {"type": "string", "location": "path"}}, "id": "books.mylibrary.bookshelves.volumes.list", "httpMethod": "GET", "path": "mylibrary/bookshelves/{shelf}/volumes", "response": {"$ref": "Volumes"}}}}}}}}', true));
+    $this->bookshelves = new BookshelvesServiceResource($this, $this->serviceName, 'bookshelves', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "userId": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "id": "books.bookshelves.list", "httpMethod": "GET", "path": "users/{userId}/bookshelves", "response": {"$ref": "Bookshelves"}}, "get": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "userId": {"required": true, "type": "string", "location": "path"}, "shelf": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "id": "books.bookshelves.get", "httpMethod": "GET", "path": "users/{userId}/bookshelves/{shelf}", "response": {"$ref": "Bookshelf"}}}, "resources": {"volumes": {"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "showPreorders": {"type": "boolean", "location": "query"}, "maxResults": {"format": "uint32", "minimum": "0", "type": "integer", "location": "query"}, "source": {"type": "string", "location": "query"}, "startIndex": {"format": "uint32", "minimum": "0", "type": "integer", "location": "query"}, "shelf": {"required": true, "type": "string", "location": "path"}, "userId": {"required": true, "type": "string", "location": "path"}}, "id": "books.bookshelves.volumes.list", "httpMethod": "GET", "path": "users/{userId}/bookshelves/{shelf}/volumes", "response": {"$ref": "Volumes"}}}}}}', true));
+    $this->volumes = new VolumesServiceResource($this, $this->serviceName, 'volumes', json_decode('{"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"orderBy": {"enum": ["newest", "relevance"], "type": "string", "location": "query"}, "filter": {"enum": ["ebooks", "free-ebooks", "full", "paid-ebooks", "partial"], "type": "string", "location": "query"}, "projection": {"enum": ["full", "lite"], "type": "string", "location": "query"}, "libraryRestrict": {"enum": ["my-library", "no-restrict"], "type": "string", "location": "query"}, "langRestrict": {"type": "string", "location": "query"}, "country": {"type": "string", "location": "query"}, "printType": {"enum": ["all", "books", "magazines"], "type": "string", "location": "query"}, "maxResults": {"format": "uint32", "maximum": "40", "minimum": "0", "location": "query", "type": "integer"}, "q": {"required": true, "type": "string", "location": "query"}, "source": {"type": "string", "location": "query"}, "startIndex": {"format": "uint32", "minimum": "0", "type": "integer", "location": "query"}, "download": {"enum": ["epub"], "type": "string", "location": "query"}, "partner": {"type": "string", "location": "query"}, "showPreorders": {"type": "boolean", "location": "query"}}, "id": "books.volumes.list", "httpMethod": "GET", "path": "volumes", "response": {"$ref": "Volumes"}}, "get": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"partner": {"type": "string", "location": "query"}, "source": {"type": "string", "location": "query"}, "projection": {"enum": ["full", "lite"], "type": "string", "location": "query"}, "volumeId": {"required": true, "type": "string", "location": "path"}, "country": {"type": "string", "location": "query"}}, "id": "books.volumes.get", "httpMethod": "GET", "path": "volumes/{volumeId}", "response": {"$ref": "Volume"}}}}', true));
+    $this->mylibrary = new MylibraryServiceResource($this, $this->serviceName, 'mylibrary', json_decode('{"resources": {"bookshelves": {"methods": {"clearVolumes": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "shelf": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "httpMethod": "POST", "path": "mylibrary/bookshelves/{shelf}/clearVolumes", "id": "books.mylibrary.bookshelves.clearVolumes"}, "removeVolume": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "volumeId": {"required": true, "type": "string", "location": "query"}, "shelf": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "httpMethod": "POST", "path": "mylibrary/bookshelves/{shelf}/removeVolume", "id": "books.mylibrary.bookshelves.removeVolume"}, "list": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "source": {"type": "string", "location": "query"}}, "response": {"$ref": "Bookshelves"}, "httpMethod": "GET", "path": "mylibrary/bookshelves", "id": "books.mylibrary.bookshelves.list"}, "addVolume": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "volumeId": {"required": true, "type": "string", "location": "query"}, "shelf": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "httpMethod": "POST", "path": "mylibrary/bookshelves/{shelf}/addVolume", "id": "books.mylibrary.bookshelves.addVolume"}, "get": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"country": {"type": "string", "location": "query"}, "shelf": {"required": true, "type": "string", "location": "path"}, "source": {"type": "string", "location": "query"}}, "id": "books.mylibrary.bookshelves.get", "httpMethod": "GET", "path": "mylibrary/bookshelves/{shelf}", "response": {"$ref": "Bookshelf"}}}, "resources": {"volumes": {"methods": {"list": {"scopes": ["https://www.googleapis.com/auth/books"], "parameters": {"projection": {"enum": ["full", "lite"], "type": "string", "location": "query"}, "country": {"type": "string", "location": "query"}, "showPreorders": {"type": "boolean", "location": "query"}, "maxResults": {"format": "uint32", "minimum": "0", "type": "integer", "location": "query"}, "q": {"type": "string", "location": "query"}, "source": {"type": "string", "location": "query"}, "startIndex": {"format": "uint32", "minimum": "0", "type": "integer", "location": "query"}, "shelf": {"type": "string", "location": "path"}}, "id": "books.mylibrary.bookshelves.volumes.list", "httpMethod": "GET", "path": "mylibrary/bookshelves/{shelf}/volumes", "response": {"$ref": "Volumes"}}}}}}}}', true));
   }
 }
 
@@ -441,10 +444,11 @@ class Bookshelf extends apiModel {
 
 class Bookshelves extends apiModel {
   protected $__itemsType = 'Bookshelf';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setItems(/* array(Bookshelf) */ $items) {
-    $this->assertIsArray($items, Bookshelf, __METHOD__);
+    $this->assertIsArray($items, 'Bookshelf', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
@@ -601,11 +605,13 @@ class Review extends apiModel {
   public $rating;
   public $kind;
   protected $__authorType = 'ReviewAuthor';
+  protected $__authorDataType = '';
   public $author;
   public $title;
   public $volumeId;
   public $content;
   protected $__sourceType = 'ReviewSource';
+  protected $__sourceDataType = '';
   public $source;
   public $date;
   public $type;
@@ -709,13 +715,17 @@ class ReviewSource extends apiModel {
 class Volume extends apiModel {
   public $kind;
   protected $__accessInfoType = 'VolumeAccessInfo';
+  protected $__accessInfoDataType = '';
   public $accessInfo;
   protected $__saleInfoType = 'VolumeSaleInfo';
+  protected $__saleInfoDataType = '';
   public $saleInfo;
   public $etag;
   protected $__userInfoType = 'VolumeUserInfo';
+  protected $__userInfoDataType = '';
   public $userInfo;
   protected $__volumeInfoType = 'VolumeVolumeInfo';
+  protected $__volumeInfoDataType = '';
   public $volumeInfo;
   public $id;
   public $selfLink;
@@ -773,13 +783,16 @@ class VolumeAccessInfo extends apiModel {
   public $publicDomain;
   public $embeddable;
   protected $__downloadAccessType = 'DownloadAccessRestriction';
+  protected $__downloadAccessDataType = '';
   public $downloadAccess;
   public $country;
   public $textToSpeechPermission;
   protected $__pdfType = 'VolumeAccessInfoPdf';
+  protected $__pdfDataType = '';
   public $pdf;
   public $viewability;
   protected $__epubType = 'VolumeAccessInfoEpub';
+  protected $__epubDataType = '';
   public $epub;
   public $accessViewStatus;
   public function setPublicDomain($publicDomain) {
@@ -875,11 +888,14 @@ class VolumeAccessInfoPdf extends apiModel {
 class VolumeSaleInfo extends apiModel {
   public $country;
   protected $__retailPriceType = 'VolumeSaleInfoRetailPrice';
+  protected $__retailPriceDataType = '';
   public $retailPrice;
   public $isEbook;
   public $saleability;
   public $buyLink;
+  public $onSaleDate;
   protected $__listPriceType = 'VolumeSaleInfoListPrice';
+  protected $__listPriceDataType = '';
   public $listPrice;
   public function setCountry($country) {
     $this->country = $country;
@@ -910,6 +926,12 @@ class VolumeSaleInfo extends apiModel {
   }
   public function getBuyLink() {
     return $this->buyLink;
+  }
+  public function setOnSaleDate($onSaleDate) {
+    $this->onSaleDate = $onSaleDate;
+  }
+  public function getOnSaleDate() {
+    return $this->onSaleDate;
   }
   public function setListPrice(VolumeSaleInfoListPrice $listPrice) {
     $this->listPrice = $listPrice;
@@ -955,10 +977,13 @@ class VolumeSaleInfoRetailPrice extends apiModel {
 
 class VolumeUserInfo extends apiModel {
   public $updated;
-  protected $__readingPositionType = 'ReadingPosition';
-  public $readingPosition;
+  public $isPreordered;
   public $isPurchased;
+  protected $__readingPositionType = 'ReadingPosition';
+  protected $__readingPositionDataType = '';
+  public $readingPosition;
   protected $__reviewType = 'Review';
+  protected $__reviewDataType = '';
   public $review;
   public function setUpdated($updated) {
     $this->updated = $updated;
@@ -966,17 +991,23 @@ class VolumeUserInfo extends apiModel {
   public function getUpdated() {
     return $this->updated;
   }
-  public function setReadingPosition(ReadingPosition $readingPosition) {
-    $this->readingPosition = $readingPosition;
+  public function setIsPreordered($isPreordered) {
+    $this->isPreordered = $isPreordered;
   }
-  public function getReadingPosition() {
-    return $this->readingPosition;
+  public function getIsPreordered() {
+    return $this->isPreordered;
   }
   public function setIsPurchased($isPurchased) {
     $this->isPurchased = $isPurchased;
   }
   public function getIsPurchased() {
     return $this->isPurchased;
+  }
+  public function setReadingPosition(ReadingPosition $readingPosition) {
+    $this->readingPosition = $readingPosition;
+  }
+  public function getReadingPosition() {
+    return $this->readingPosition;
   }
   public function setReview(Review $review) {
     $this->review = $review;
@@ -990,10 +1021,12 @@ class VolumeVolumeInfo extends apiModel {
   public $publishedDate;
   public $subtitle;
   protected $__dimensionsType = 'VolumeVolumeInfoDimensions';
+  protected $__dimensionsDataType = '';
   public $dimensions;
   public $language;
   public $pageCount;
   protected $__imageLinksType = 'VolumeVolumeInfoImageLinks';
+  protected $__imageLinksDataType = '';
   public $imageLinks;
   public $description;
   public $previewLink;
@@ -1001,6 +1034,7 @@ class VolumeVolumeInfo extends apiModel {
   public $mainCategory;
   public $contentVersion;
   protected $__industryIdentifiersType = 'VolumeVolumeInfoIndustryIdentifiers';
+  protected $__industryIdentifiersDataType = 'array';
   public $industryIdentifiers;
   public $authors;
   public $publisher;
@@ -1076,14 +1110,14 @@ class VolumeVolumeInfo extends apiModel {
     return $this->contentVersion;
   }
   public function setIndustryIdentifiers(/* array(VolumeVolumeInfoIndustryIdentifiers) */ $industryIdentifiers) {
-    $this->assertIsArray($industryIdentifiers, VolumeVolumeInfoIndustryIdentifiers, __METHOD__);
+    $this->assertIsArray($industryIdentifiers, 'VolumeVolumeInfoIndustryIdentifiers', __METHOD__);
     $this->industryIdentifiers = $industryIdentifiers;
   }
   public function getIndustryIdentifiers() {
     return $this->industryIdentifiers;
   }
   public function setAuthors(/* array(string) */ $authors) {
-    $this->assertIsArray($authors, string, __METHOD__);
+    $this->assertIsArray($authors, 'string', __METHOD__);
     $this->authors = $authors;
   }
   public function getAuthors() {
@@ -1114,7 +1148,7 @@ class VolumeVolumeInfo extends apiModel {
     return $this->infoLink;
   }
   public function setCategories(/* array(string) */ $categories) {
-    $this->assertIsArray($categories, string, __METHOD__);
+    $this->assertIsArray($categories, 'string', __METHOD__);
     $this->categories = $categories;
   }
   public function getCategories() {
@@ -1217,6 +1251,7 @@ class VolumeVolumeInfoIndustryIdentifiers extends apiModel {
 class Volumes extends apiModel {
   public $totalItems;
   protected $__itemsType = 'Volume';
+  protected $__itemsDataType = 'array';
   public $items;
   public $kind;
   public function setTotalItems($totalItems) {
@@ -1226,7 +1261,7 @@ class Volumes extends apiModel {
     return $this->totalItems;
   }
   public function setItems(/* array(Volume) */ $items) {
-    $this->assertIsArray($items, Volume, __METHOD__);
+    $this->assertIsArray($items, 'Volume', __METHOD__);
     $this->items = $items;
   }
   public function getItems() {
