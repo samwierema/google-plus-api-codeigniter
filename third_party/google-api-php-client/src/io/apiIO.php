@@ -26,14 +26,6 @@ require_once 'io/apiRPC.php';
  * @author Chris Chabot <chabotc@google.com>
  */
 interface apiIO {
-
-  /**
-   * Called by the apiClient
-   * @param apiCache $storage
-   * @param apiAuth $auth
-   */
-  public function __construct(apiCache $storage, apiAuth $auth);
-
   /**
    * An utility function that first calls $this->auth->sign($request) and then executes makeRequest()
    * on that signed request. Used for when a request should be authenticated

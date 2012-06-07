@@ -23,6 +23,7 @@ require_once "service/apiUtils.php";
  * Authentication class that deals with the OAuth 2 web-server authentication flow
  *
  * @author Chris Chabot <chabotc@google.com>
+ * @author Chirag Shah <chirags@google.com>
  *
  */
 class apiOAuth2 extends apiAuth {
@@ -35,9 +36,10 @@ class apiOAuth2 extends apiAuth {
   public $accessType = 'offline';
   public $approvalPrompt = 'force';
 
-  const OAUTH2_TOKEN_URI = "https://accounts.google.com/o/oauth2/token";
-  const OAUTH2_AUTH_URL = "https://accounts.google.com/o/oauth2/auth";
-  const OAUTH2_FEDERATED_SIGNON_CERTS_URL = "https://www.googleapis.com/oauth2/v1/certs";
+  const OAUTH2_REVOKE_URI = 'https://accounts.google.com/o/oauth2/revoke';
+  const OAUTH2_TOKEN_URI = 'https://accounts.google.com/o/oauth2/token';
+  const OAUTH2_AUTH_URL = 'https://accounts.google.com/o/oauth2/auth';
+  const OAUTH2_FEDERATED_SIGNON_CERTS_URL = 'https://www.googleapis.com/oauth2/v1/certs';
   const CLOCK_SKEW_SECS = 300; // five minutes in seconds
   const AUTH_TOKEN_LIFETIME_SECS = 300; // five minutes in seconds
   const MAX_TOKEN_LIFETIME_SECS = 86400; // one day in seconds
@@ -74,28 +76,23 @@ class apiOAuth2 extends apiAuth {
     }
   }
 
-  // Initializes IO handler.
-  private function initIo() {
-    if ($this->io == null) {
-      global $apiClient;
-      $this->io = $apiClient->getIo();
-    }
-    return $this->io;
-  }
-
+  /**
+   * @param $service
+   * @return string
+   * @throws apiAuthException
+   */
   public function authenticate($service) {
-    $this->initIo();
-
     if (isset($_GET['code'])) {
       // We got here from the redirect from a successful authorization grant, fetch the access token
-      $request = $this->io->makeRequest(new apiHttpRequest(self::OAUTH2_TOKEN_URI, 'POST', array(), array(
+      $request = apiClient::$io->makeRequest(new apiHttpRequest(self::OAUTH2_TOKEN_URI, 'POST', array(), array(
           'code' => $_GET['code'],
           'grant_type' => 'authorization_code',
           'redirect_uri' => $this->redirectUri,
           'client_id' => $this->clientId,
           'client_secret' => $this->clientSecret
       )));
-      if ((int)$request->getResponseHttpCode() == 200) {
+
+      if ($request->getResponseHttpCode() == 200) {
         $this->setAccessToken($request->getResponseBody());
         $this->accessToken['created'] = time();
         return $this->getAccessToken();
@@ -109,16 +106,23 @@ class apiOAuth2 extends apiAuth {
       }
     }
 
-    $authUrl = $this->createAuthUrl($service);
+    $authUrl = $this->createAuthUrl($service['scope']);
     header('Location: ' . $authUrl);
   } 
 
-  public function createAuthUrl($service) {
+  /**
+   * Create a URL to obtain user authorization.
+   * The authorization endpoint allows the user to first
+   * authenticate, and then grant/deny the access request.
+   * @param string $scope The scope is expressed as a list of space-delimited strings.
+   * @return string
+   */
+  public function createAuthUrl($scope) {
     $params = array(
         'response_type=code',
         'redirect_uri=' . urlencode($this->redirectUri),
         'client_id=' . urlencode($this->clientId),
-        'scope=' . urlencode($service['scope']),
+        'scope=' . urlencode($scope),
         'access_type=' . urlencode($this->accessType),
         'approval_prompt=' . urlencode($this->approvalPrompt)
     );
@@ -130,12 +134,16 @@ class apiOAuth2 extends apiAuth {
     return self::OAUTH2_AUTH_URL . "?$params";
   }
 
+  /**
+   * @param $accessToken
+   * @throws apiAuthException Thrown when $accessToken is invalid.
+   */
   public function setAccessToken($accessToken) {
     $accessToken = json_decode($accessToken, true);
     if ($accessToken == null) {
-      throw new apiAuthException("Could not json decode the access token");
+      throw new apiAuthException('Could not json decode the access token');
     }
-    if (! isset($accessToken['access_token']) || ! isset($accessToken['expires_in']) || ! isset($accessToken['refresh_token'])) {
+    if (! isset($accessToken['access_token'])) {
       throw new apiAuthException("Invalid token format");
     }
     $this->accessToken = $accessToken;
@@ -161,11 +169,19 @@ class apiOAuth2 extends apiAuth {
     $this->approvalPrompt = $approvalPrompt;
   }
 
+  /**
+   * Include an accessToken in a given apiHttpRequest.
+   * @param apiHttpRequest $request
+   * @return apiHttpRequest
+   * @throws apiAuthException
+   */
   public function sign(apiHttpRequest $request) {
-    $this->initIo();
     // add the developer key to the request before signing it
     if ($this->developerKey) {
-      $request->setUrl($request->getUrl() . ((strpos($request->getUrl(), '?') === false) ? '?' : '&') . 'key=' . urlencode($this->developerKey));
+      $requestUrl = $request->getUrl();
+      $requestUrl .= (strpos($request->getUrl(), '?') === false) ? '?' : '&';
+      $requestUrl .=  'key=' . urlencode($this->developerKey);
+      $request->setUrl($requestUrl);
     }
 
     // Cannot sign the request without an OAuth access token.
@@ -173,61 +189,97 @@ class apiOAuth2 extends apiAuth {
       return $request;
     }
 
-    if (($this->accessToken['created'] + ($this->accessToken['expires_in'] - 30)) < time()) {
-      // if the token is set to expire in the next 30 seconds (or has already expired), refresh it and set the new token
-      //FIXME this is mostly a copy and paste mashup from the authenticate and setAccessToken functions, should generalize them into a function instead of this mess
-      $refreshRequest = $this->io->makeRequest(new apiHttpRequest(self::OAUTH2_TOKEN_URI, 'POST', array(), array(
-          'client_id' => $this->clientId,
-          'client_secret' => $this->clientSecret,
-          'refresh_token' => $this->accessToken['refresh_token'],
-          'grant_type' => 'refresh_token'
-      )));
-      
-      if ((int)$refreshRequest->getResponseHttpCode() == 200) {
-        $token = json_decode($refreshRequest->getResponseBody(), true);
-        if ($token == null) {
-          throw new apiAuthException("Could not json decode the access token");
-        }
-        if (! isset($token['access_token']) || ! isset($token['expires_in'])) {
-          throw new apiAuthException("Invalid token format");
-        }
-        $this->accessToken['access_token'] = $token['access_token'];
-        $this->accessToken['expires_in'] = $token['expires_in'];
-        $this->accessToken['created'] = time();
-      } else {
-        $response = $refreshRequest->getResponseBody();
-        $decodedResponse = json_decode($response, true);
-        if ($decodedResponse != $response && $decodedResponse != null && $decodedResponse['error']) {
-          $response = $decodedResponse['error'];
-        }
-        throw new apiAuthException("Error refreshing the OAuth2 token, message: '$response'", $refreshRequest->getResponseHttpCode());
+    // If the token is set to expire in the next 30 seconds (or has already
+    // expired), refresh it and set the new token.
+    $expired = ($this->accessToken['created'] + ($this->accessToken['expires_in'] - 30)) < time();
+    if ($expired) {
+      if (! array_key_exists('refresh_token', $this->accessToken)) {
+        throw new apiAuthException("The OAuth 2.0 access token has expired, "
+            . "and a refresh token is not available. Refresh tokens are not "
+            . "returned for responses that were auto-approved.");
       }
+      $this->refreshToken($this->accessToken['refresh_token']);
     }
 
     // Add the OAuth2 header to the request
-    $headers = $request->getHeaders();
-    $headers[] = "Authorization: OAuth " . $this->accessToken['access_token'];
-    $request->setHeaders($headers);
+    $request->setRequestHeaders(
+        array('Authorization' => 'Bearer ' . $this->accessToken['access_token'])
+    );
 
     return $request;
+  }
+
+  /**
+   * Fetches a fresh access token with the given refresh token.
+   * @param string $refreshToken
+   * @return void
+   */
+  public function refreshToken($refreshToken) {
+    $params = array(
+        'client_id' => $this->clientId,
+        'client_secret' => $this->clientSecret,
+        'refresh_token' => $refreshToken,
+        'grant_type' => 'refresh_token'
+    );
+    $request = apiClient::$io->makeRequest(
+          new apiHttpRequest(self::OAUTH2_TOKEN_URI, 'POST', array(), $params));
+    $code = $request->getResponseHttpCode();
+    $body = $request->getResponseBody();
+    if ($code == 200) {
+      $token = json_decode($body, true);
+      if ($token == null) {
+        throw new apiAuthException("Could not json decode the access token");
+      }
+      
+      if (! isset($token['access_token']) || ! isset($token['expires_in'])) {
+        throw new apiAuthException("Invalid token format");
+      }
+      
+      $this->accessToken['access_token'] = $token['access_token'];
+      $this->accessToken['expires_in'] = $token['expires_in'];
+      $this->accessToken['created'] = time();
+    } else {
+      throw new apiAuthException("Error refreshing the OAuth2 token, message: '$body'", $code);
+    }
+  }
+
+    /**
+     * Revoke an OAuth2 access token or refresh token. This method will revoke the current access
+     * token, if a token isn't provided.
+     * @throws apiAuthException
+     * @param string|null $token The token (access token or a refresh token) that should be revoked.
+     * @return boolean Returns True if the revocation was successful, otherwise False.
+     */
+  public function revokeToken($token = null) {
+    if (!$token) {
+      $token = $this->accessToken['access_token'];
+    }
+    $request = new apiHttpRequest(self::OAUTH2_REVOKE_URI, 'POST', array(), "token=$token");
+    $response = apiClient::$io->makeRequest($request);
+    $code = $response->getResponseHttpCode();
+    if ($code == 200) {
+      $this->accessToken = null;
+      return true;
+    }
+
+    return false;
   }
 
   // Gets federated sign-on certificates to use for verifying identity tokens.
   // Returns certs as array structure, where keys are key ids, and values
   // are PEM encoded certificates.
   private function getFederatedSignOnCerts() {
-    $this->initIo();
     // This relies on makeRequest caching certificate responses.
-    $request = $this->io->makeRequest(new apiHttpRequest(
+    $request = apiClient::$io->makeRequest(new apiHttpRequest(
         self::OAUTH2_FEDERATED_SIGNON_CERTS_URL));
-    if ((int)$request->getResponseHttpCode() == 200) {
+    if ($request->getResponseHttpCode() == 200) {
       $certs = json_decode($request->getResponseBody(), true);
       if ($certs) {
         return $certs;
       }
     }
     throw new apiAuthException(
-        "Failed to retrieve verification certificates: '" . 
+        "Failed to retrieve verification certificates: '" .
             $request->getResponseBody() . "'.",
         $request->getResponseHttpCode());
   }
@@ -242,7 +294,11 @@ class apiOAuth2 extends apiAuth {
    * @param $audience
    * @return apiLoginTicket
    */
-  function verifyIdToken($id_token, $audience = null) {
+  public function verifyIdToken($id_token = null, $audience = null) {
+    if (!$id_token) {
+      $id_token = $this->accessToken['id_token'];
+    }
+
     $certs = $this->getFederatedSignonCerts();
     if (!$audience) {
       $audience = $this->clientId;
@@ -251,7 +307,6 @@ class apiOAuth2 extends apiAuth {
   }
 
   // Verifies the id token, returns the verified token contents.
-  //
   // Visible for testing.
   function verifySignedJwtWithCerts($jwt, $certs, $required_audience) {
     $segments = explode(".", $jwt);

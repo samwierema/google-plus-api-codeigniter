@@ -26,30 +26,26 @@
  *
  */
 class apiServiceRequest {
-
-  protected $io;
-  protected $restBasePath;
-  protected $restPath;
-  protected $rpcPath;
-  protected $rpcName;
-  protected $httpMethod;
-  protected $parameters;
-  protected $postBody;
-  protected $batchKey;
+  public $restBasePath;
+  public $restPath;
+  public $rpcPath;
+  public $rpcName;
+  public $httpMethod;
+  public $parameters;
+  public $postBody;
+  public $batchKey;
+  public $contentType;
 
   /**
-   * @param apiIO $io
    * @param string $restBasePath
    * @param string $rpcPath
    * @param string $restPath
    * @param string $rpcName
    * @param string $httpMethod
-   * @param $parameters
-   * @param $postBody
+   * @param array $parameters
+   * @param string $postBody
    */
-  public function __construct(apiIO $io, $restBasePath, $rpcPath, $restPath, $rpcName, $httpMethod, $parameters, $postBody = null) {
-    $this->io = $io;
-
+  public function __construct($restBasePath, $rpcPath, $restPath, $rpcName, $httpMethod, $parameters, $postBody = null) {
     if (substr($restBasePath, 0, 4) == 'http') {
       $this->restBasePath = $restBasePath;
     } else {
@@ -66,49 +62,26 @@ class apiServiceRequest {
   }
 
   /**
-   * @return the $postBody
+   * @return string $postBody
    */
   public function getPostBody() {
     return $this->postBody;
   }
 
   /**
-   * @param $postBody the $postBody to set
+   * @param string $postBody The post body.
    */
   public function setPostBody($postBody) {
     $this->postBody = $postBody;
   }
-
   /**
-   * @return apiIo $io
-   */
-  public function getIo() {
-    return $this->io;
-  }
-
-  /**
-   * @param apiIo $io
-   */
-  public function setIo($io) {
-    $this->io = $io;
-  }
-
-  /**
-   * @param $baseUrl the $baseUrl to set
-   */
-  public function setBaseUrl($baseUrl) {
-    $this->baseUrl = $baseUrl;
-  }
-
-  /**
-   * @return the $restBasePath
+   * @return string restBasePath
    */
   public function getRestBasePath() {
     return $this->restBasePath;
   }
-
   /**
-   * @return the restPath
+   * @return string restPath
    */
   public function getRestPath() {
     return $this->restPath;
@@ -143,27 +116,6 @@ class apiServiceRequest {
   }
 
   /**
-   * @param $restBasePath the $restBasePath to set
-   */
-  public function setRestBasePath($restBasePath) {
-    $this->restBasePath = $restBasePath;
-  }
-
-  /**
-   * @param $restPath the $restPath to set
-   */
-  public function setRestPath($restPath) {
-    $this->restPath = $restPath;
-  }
-
-  /**
-   * @param $rpcPath the $rpcPath to set
-   */
-  public function setRpcPath($rpcPath) {
-    $this->rpcPath = $rpcPath;
-  }
-
-  /**
    * @return string $batchKey
    */
   public function getBatchKey() {
@@ -177,4 +129,7 @@ class apiServiceRequest {
     $this->batchKey = $batchKey;
   }
 
+  public function setContentType($type) {
+    $this->contentType = $type;
+  }
 }

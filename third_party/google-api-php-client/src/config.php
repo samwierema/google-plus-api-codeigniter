@@ -63,6 +63,7 @@ $apiConfig = array(
 
     // Definition of service specific values like scopes, oauth token URLs, etc
     'services' => array(
+      'analytics' => array('scope' => 'https://www.googleapis.com/auth/analytics.readonly'),
       'calendar' => array(
           'scope' => array(
               "https://www.googleapis.com/auth/calendar",
@@ -77,6 +78,12 @@ $apiConfig = array(
           )
       ),
       'moderator' => array('scope' => 'https://www.googleapis.com/auth/moderator'),
+      'oauth2' => array(
+          'scope' => array(
+              'https://www.googleapis.com/auth/userinfo.profile',
+              'https://www.googleapis.com/auth/userinfo.email',
+          )
+      ),
       'plus' => array('scope' => 'https://www.googleapis.com/auth/plus.me'),
       'siteVerification' => array('scope' => 'https://www.googleapis.com/auth/siteverification'),
       'tasks' => array('scope' => 'https://www.googleapis.com/auth/tasks'),

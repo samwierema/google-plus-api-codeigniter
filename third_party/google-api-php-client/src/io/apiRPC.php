@@ -21,7 +21,6 @@
  * @author Chris Chabot <chabotc@google.com>
  */
 class apiRPC {
-
   static public function execute($requests) {
     $jsonRpcRequest = array();
     foreach ($requests as $request) {
@@ -37,10 +36,10 @@ class apiRPC {
       );
     }
     $httpRequest = new apiHttpRequest($request->getRpcPath());
-    $httpRequest->setHeaders(array('Content-Type: application/json'));
-    $httpRequest->setMethod('POST');
+    $httpRequest->setRequestHeaders(array('Content-Type' => 'application/json'));
+    $httpRequest->setRequestMethod('POST');
     $httpRequest->setPostBody(json_encode($jsonRpcRequest));
-    $httpRequest = $request->getIo()->authenticatedRequest($httpRequest);
+    $httpRequest = apiClient::$io->authenticatedRequest($httpRequest);
     if (($decodedResponse = json_decode($httpRequest->getResponseBody(), true)) != false) {
       $ret = array();
       foreach ($decodedResponse as $response) {

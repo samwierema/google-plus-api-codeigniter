@@ -25,15 +25,13 @@ require_once "apiOAuth2.php";
  *
  */
 abstract class apiAuth {
-  /** @var apiIo $io */
-  public $io;
-
   abstract public function authenticate($service);
+  abstract public function sign(apiHttpRequest $request);
+  abstract public function createAuthUrl($scope);
+
+  abstract public function getAccessToken();
   abstract public function setAccessToken($accessToken);
   abstract public function setDeveloperKey($developerKey);
-  abstract public function sign(apiHttpRequest $request);
-
-  public function setIo(apiIo $io) {
-    $this->io = $io;
-  }
+  abstract public function refreshToken($refreshToken);
+  abstract public function revokeToken();
 }

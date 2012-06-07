@@ -28,14 +28,11 @@ require_once "external/OAuth.php";
  *
  */
 class apiOAuth extends apiAuth {
-
   public $cacheKey;
   protected $consumerToken;
   protected $accessToken;
   protected $privateKeyFile;
   protected $developerKey;
-  public $io;
-  public $cache;
   public $service;
 
   /**
@@ -43,10 +40,6 @@ class apiOAuth extends apiAuth {
    * to the discretion of the caller.
    */
   public function __construct() {
-    global $apiClient;
-    $this->io = $apiClient->getIo();
-    $this->cache = $apiClient->getCache();
-    
     global $apiConfig;
     if (!empty($apiConfig['developer_key'])) {
       $this->setDeveloperKey($apiConfig['developer_key']);
@@ -73,8 +66,8 @@ class apiOAuth extends apiAuth {
     $this->service['authorization_token_url'] .= '?scope=' . apiClientOAuthUtil::urlencodeRFC3986($service['scope']) . '&domain=' . apiClientOAuthUtil::urlencodeRFC3986($apiConfig['site_name']) . '&oauth_token=';
     if (isset($_GET['oauth_verifier']) && isset($_GET['oauth_token'])  && isset($_GET['uid'])) {
       $uid = $_GET['uid'];
-      $secret = $this->cache->get($this->cacheKey.":nonce:" . $uid);
-      $this->cache->delete($this->cacheKey.":nonce:" . $uid);
+      $secret = apiClient::$cache->get($this->cacheKey.":nonce:" . $uid);
+      apiClient::$cache->delete($this->cacheKey.":nonce:" . $uid);
       $token = $this->upgradeRequestToken($_GET['oauth_token'], $secret, $_GET['oauth_verifier']);
       return json_encode($token);
     } else {
@@ -83,7 +76,7 @@ class apiOAuth extends apiAuth {
       $callbackUrl = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
       $uid = uniqid();
       $token = $this->obtainRequestToken($callbackUrl, $uid);
-      $this->cache->set($this->cacheKey.":nonce:" . $uid,  $token->secret);
+      apiClient::$cache->set($this->cacheKey.":nonce:" . $uid,  $token->secret);
       $this->redirectToAuthorization($token);
     }
   }
@@ -146,11 +139,10 @@ class apiOAuth extends apiAuth {
    * @return array('http_code' => HTTP response code (200, 404, 401, etc), 'data' => the html document)
    */
   protected function requestAccessToken($requestToken, $requestTokenSecret, $oauthVerifier) {
-    global $apiConfig;
     $accessToken = new apiClientOAuthConsumer($requestToken, $requestTokenSecret);
     $accessRequest = apiClientOAuthRequest::from_consumer_and_token($this->consumerToken, $accessToken, "GET", $this->service['access_token_url'], array('oauth_verifier' => $oauthVerifier));
     $accessRequest->sign_request($this->signatureMethod, $this->consumerToken, $accessToken);
-    $request = $this->io->makeRequest(new apiHttpRequest($accessRequest));
+    $request = apiClient::$io->makeRequest(new apiHttpRequest($accessRequest));
     if ($request->getResponseHttpCode() != 200) {
       throw new apiAuthException("Could not fetch access token, http code: " . $request->getResponseHttpCode() . ', response body: '. $request->getResponseBody());
     }
@@ -177,12 +169,11 @@ class apiOAuth extends apiAuth {
    * @return array('http_code' => HTTP response code (200, 404, 401, etc), 'data' => the html document)
    */
   protected function requestRequestToken($callbackUrl) {
-    global $apiConfig;
     $requestTokenRequest = apiClientOAuthRequest::from_consumer_and_token($this->consumerToken, NULL, "GET", $this->service['request_token_url'], array());
     $requestTokenRequest->set_parameter('scope', $this->service['scope']);
     $requestTokenRequest->set_parameter('oauth_callback', $callbackUrl);
     $requestTokenRequest->sign_request($this->signatureMethod, $this->consumerToken, NULL);
-    $request = $this->io->makeRequest(new apiHttpRequest($requestTokenRequest));
+    $request = apiClient::$io->makeRequest(new apiHttpRequest($requestTokenRequest));
     if ($request->getResponseHttpCode() != 200) {
       throw new apiAuthException("Couldn't fetch request token, http code: " . $request->getResponseHttpCode() . ', response body: '. $request->getResponseBody());
     }
@@ -197,7 +188,6 @@ class apiOAuth extends apiAuth {
    * @param string $callbackUrl the URL to return to post-authorization (passed to login site)
    */
   public function redirectToAuthorization($token) {
-    global $apiConfig;
     $authorizeRedirect = $this->service['authorization_token_url']. $token->key;
     header("Location: $authorizeRedirect");
   }
@@ -253,4 +243,8 @@ class apiOAuth extends apiAuth {
     }
     return array_merge($defaults, $params);
   }
+
+  public function createAuthUrl($scope) {return null;}
+  public function refreshToken($refreshToken) {/* noop*/}
+  public function revokeToken() {/* noop*/}
 }
