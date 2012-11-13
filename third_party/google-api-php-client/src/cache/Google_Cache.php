@@ -15,16 +15,15 @@
  * limitations under the License.
  */
 
-require_once "apiFileCache.php";
-require_once "apiApcCache.php";
-require_once "apiMemcacheCache.php";
+require_once "Google_FileCache.php";
+require_once "Google_MemcacheCache.php";
 
 /**
  * Abstract storage class
  *
  * @author Chris Chabot <chabotc@google.com>
  */
-abstract class apiCache {
+abstract class Google_Cache {
 
   /**
    * Retrieves the data for the given key, or false if they
@@ -40,8 +39,8 @@ abstract class apiCache {
    * Store the key => $value set. The $value is serialized
    * by this function so can be of any type
    *
-   * @param String $key Key of the data
-   * @param $value the data
+   * @param string $key Key of the data
+   * @param string $value data
    */
   abstract function set($key, $value);
 

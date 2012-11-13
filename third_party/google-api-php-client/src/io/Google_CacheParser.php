@@ -19,7 +19,7 @@
  * implementation is guided by the guidance offered in rfc2616-sec13.
  * @author Chirag Shah <chirags@google.com>
  */
-class apiCacheParser {
+class Google_CacheParser {
   public static $CACHEABLE_HTTP_METHODS = array('GET', 'HEAD');
   public static $CACHEABLE_STATUS_CODES = array('200', '203', '300', '301');
 
@@ -29,11 +29,11 @@ class apiCacheParser {
    * Check if an HTTP request can be cached by a private local cache.
    *
    * @static
-   * @param apiHttpRequest $resp
+   * @param Google_HttpRequest $resp
    * @return bool True if the request is cacheable.
    * False if the request is uncacheable.
    */
-  public static function isRequestCacheable (apiHttpRequest $resp) {
+  public static function isRequestCacheable (Google_HttpRequest $resp) {
     $method = $resp->getRequestMethod();
     if (! in_array($method, self::$CACHEABLE_HTTP_METHODS)) {
       return false;
@@ -54,11 +54,11 @@ class apiCacheParser {
    * Check if an HTTP response can be cached by a private local cache.
    *
    * @static
-   * @param apiHttpRequest $resp
+   * @param Google_HttpRequest $resp
    * @return bool True if the response is cacheable.
    * False if the response is un-cacheable.
    */
-  public static function isResponseCacheable (apiHttpRequest $resp) {
+  public static function isResponseCacheable (Google_HttpRequest $resp) {
     // First, check if the HTTP request was cacheable before inspecting the
     // HTTP response.
     if (false == self::isRequestCacheable($resp)) {
@@ -105,11 +105,11 @@ class apiCacheParser {
 
   /**
    * @static
-   * @param apiHttpRequest $resp
+   * @param Google_HttpRequest $resp
    * @return bool True if the HTTP response is considered to be expired.
    * False if it is considered to be fresh.
    */
-  public static function isExpired(apiHttpRequest $resp) {
+  public static function isExpired(Google_HttpRequest $resp) {
     // HTTP/1.1 clients and caches MUST treat other invalid date formats,
     // especially including the value “0”, as in the past.
     $parsedExpires = false;
@@ -161,10 +161,10 @@ class apiCacheParser {
   /**
    * Determine if a cache entry should be revalidated with by the origin.
    *
-   * @param apiHttpRequest $response
+   * @param Google_HttpRequest $response
    * @return bool True if the entry is expired, else return false.
    */
-  public static function mustRevalidate(apiHttpRequest $response) {
+  public static function mustRevalidate(Google_HttpRequest $response) {
     // [13.3] When a cache has a stale entry that it would like to use as a
     // response to a client's request, it first has to check with the origin
     // server to see if its cached entry is still usable.

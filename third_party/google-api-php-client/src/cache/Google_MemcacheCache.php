@@ -23,18 +23,18 @@
  *
  * @author Chris Chabot <chabotc@google.com>
  */
-class apiMemcacheCache extends apiCache {
+class Google_MemcacheCache extends Google_Cache {
   private $connection = false;
 
   public function __construct() {
     global $apiConfig;
     if (! function_exists('memcache_connect')) {
-      throw new apiCacheException("Memcache functions not available");
+      throw new Google_CacheException("Memcache functions not available");
     }
     $this->host = $apiConfig['ioMemCacheCache_host'];
     $this->port = $apiConfig['ioMemCacheCache_port'];
     if (empty($this->host) || empty($this->port)) {
-      throw new apiCacheException("You need to supply a valid memcache host and port");
+      throw new Google_CacheException("You need to supply a valid memcache host and port");
     }
   }
 
@@ -79,7 +79,7 @@ class apiMemcacheCache extends apiCache {
   // so this potentially saves a lot of overhead
   private function connect() {
     if (! $this->connection = @memcache_pconnect($this->host, $this->port)) {
-      throw new apiCacheException("Couldn't connect to memcache server");
+      throw new Google_CacheException("Couldn't connect to memcache server");
     }
   }
 
@@ -106,18 +106,22 @@ class apiMemcacheCache extends apiCache {
 
   /**
    * @inheritDoc
+   * @param string $key
+   * @param string $value
+   * @throws Google_CacheException
    */
   public function set($key, $value) {
     $this->check();
     // we store it with the cache_time default expiration so objects will at least get cleaned eventually.
     if (@memcache_set($this->connection, $key, array('time' => time(),
         'data' => $value), false) == false) {
-      throw new apiCacheException("Couldn't store data in cache");
+      throw new Google_CacheException("Couldn't store data in cache");
     }
   }
 
   /**
    * @inheritDoc
+   * @param String $key
    */
   public function delete($key) {
     $this->check();

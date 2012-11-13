@@ -15,16 +15,17 @@
  * limitations under the License.
  */
 
-require_once "apiP12Signer.php";
+require_once "Google_PemVerifier.php";
 
 /**
- * Signs data.
+ * Verifies signatures.
  *
  * @author Brian Eaton <beaton@google.com>
  */
-abstract class apiSigner {
+abstract class Google_Verifier {
   /**
-   * Signs data, returns the signature as binary data.
+   * Checks a signature, returns true if the signature is correct,
+   * false otherwise.
    */
-  abstract public function sign($data);
+  abstract public function verify($data, $signature);
 }

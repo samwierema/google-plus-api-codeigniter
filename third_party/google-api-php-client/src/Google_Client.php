@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-// Check for the required json and curl extensions, the Google API PHP Client won't function without them.
+// Check for the required json and curl extensions, the Google APIs PHP Client
+// won't function without them.
 if (! function_exists('curl_init')) {
   throw new Exception('Google PHP API Client requires the CURL PHP extension');
 }
@@ -33,25 +34,29 @@ if (! ini_get('date.timezone') && function_exists('date_default_timezone_set')) 
 }
 
 // hack around with the include paths a bit so the library 'just works'
-$cwd = dirname(__FILE__);
-set_include_path("$cwd" . PATH_SEPARATOR . get_include_path());
+set_include_path(dirname(__FILE__) . PATH_SEPARATOR . get_include_path());
 
 require_once "config.php";
 // If a local configuration file is found, merge it's values with the default configuration
-if (file_exists($cwd . '/local_config.php')) {
+if (file_exists(dirname(__FILE__)  . '/local_config.php')) {
   $defaultConfig = $apiConfig;
-  require_once ($cwd . '/local_config.php');
+  require_once (dirname(__FILE__)  . '/local_config.php');
   $apiConfig = array_merge($defaultConfig, $apiConfig);
 }
 
 // Include the top level classes, they each include their own dependencies
-require_once 'service/apiModel.php';
-require_once 'service/apiService.php';
-require_once 'service/apiServiceRequest.php';
-require_once 'auth/apiAuth.php';
-require_once 'cache/apiCache.php';
-require_once 'io/apiIO.php';
-require_once('service/apiMediaFileUpload.php');
+require_once 'service/Google_Model.php';
+require_once 'service/Google_Service.php';
+require_once 'service/Google_ServiceResource.php';
+require_once 'auth/Google_AssertionCredentials.php';
+require_once 'auth/Google_Signer.php';
+require_once 'auth/Google_P12Signer.php';
+require_once 'service/Google_BatchRequest.php';
+require_once 'external/URITemplateParser.php';
+require_once 'auth/Google_Auth.php';
+require_once 'cache/Google_Cache.php';
+require_once 'io/Google_IO.php';
+require_once('service/Google_MediaFileUpload.php');
 
 /**
  * The Google API Client
@@ -60,21 +65,30 @@ require_once('service/apiMediaFileUpload.php');
  * @author Chris Chabot <chabotc@google.com>
  * @author Chirag Shah <chirags@google.com>
  */
-class apiClient {
-  // the version of the discovery mechanism this class is meant to work with
-  const discoveryVersion = 'v0.3';
-
+class Google_Client {
   /**
    * @static
-   * @var apiAuth $auth
+   * @var Google_Auth $auth
    */
   static $auth;
 
-  /** @var apiIo $io */
+  /**
+   * @static
+   * @var Google_IO $io
+   */
   static $io;
 
-  /** @var apiCache $cache */
+  /**
+   * @static
+   * @var Google_Cache $cache
+   */
   static $cache;
+
+  /**
+   * @static
+   * @var boolean $useBatch
+   */
+  static $useBatch = false;
 
   /** @var array $scopes */
   protected $scopes = array();
@@ -88,11 +102,6 @@ class apiClient {
   // Used to track authenticated state, can't discover services after doing authenticate()
   private $authenticated = false;
 
-  private $defaultService = array(
-      'authorization_token_url' => 'https://www.google.com/accounts/OAuthAuthorizeToken',
-      'request_token_url' => 'https://www.google.com/accounts/OAuthGetRequestToken',
-      'access_token_url' => 'https://www.google.com/accounts/OAuthGetAccessToken');
-
   public function __construct($config = array()) {
     global $apiConfig;
     $apiConfig = array_merge($apiConfig, $config);
@@ -101,54 +110,33 @@ class apiClient {
     self::$io = new $apiConfig['ioClass']();
   }
 
-  public function discover($service, $version = 'v1') {
-    $this->addService($service, $version);
-    $this->$service = $this->discoverService($service, $this->services[$service]['discoveryURI']);
-    return $this->$service;
-  }
-
   /**
    * Add a service
    */
-  public function addService($service, $version) {
+  public function addService($service, $version = false) {
     global $apiConfig;
     if ($this->authenticated) {
-      // Adding services after being authenticated, since the oauth scope is already set (so you wouldn't have access to that data)
-      throw new apiException('Cant add services after having authenticated');
+      throw new Google_Exception('Cant add services after having authenticated');
     }
-    $this->services[$service] = $this->defaultService;
+    $this->services[$service] = array();
     if (isset($apiConfig['services'][$service])) {
       // Merge the service descriptor with the default values
       $this->services[$service] = array_merge($this->services[$service], $apiConfig['services'][$service]);
     }
-    $this->services[$service]['discoveryURI'] = $apiConfig['basePath'] . '/discovery/' . self::discoveryVersion . '/describe/' . urlencode($service) . '/' . urlencode($version);
   }
 
-  /**
-   * Set the type of Auth class the client should use.
-   * @param string $authClassName
-   */
-  public function setAuthClass($authClassName) {
-    self::$auth = new $authClassName();
-  }
-
-  public function authenticate() {
+  public function authenticate($code = null) {
     $service = $this->prepareService();
     $this->authenticated = true;
-    return self::$auth->authenticate($service);
+    return self::$auth->authenticate($service, $code);
   }
 
   /**
-   * Construct the OAuth 2.0 authorization request URI.
-   * @return string 
+   * @return array
+   * @visible For Testing
    */
-  public function createAuthUrl() {
-    $service = $this->prepareService();
-    return self::$auth->createAuthUrl($service['scope']);
-  }
-
-  private function prepareService() {
-    $service = $this->defaultService;
+  public function prepareService() {
+    $service = array();
     $scopes = array();
     if ($this->scopes) {
       $scopes = $this->scopes;
@@ -174,7 +162,7 @@ class apiClient {
 
   /**
    * Set the OAuth 2.0 access token using the string that resulted from calling authenticate()
-   * or apiClient#getAccessToken().
+   * or Google_Client#getAccessToken().
    * @param string $accessToken JSON encoded string containing in the following format:
    * {"access_token":"TOKEN", "refresh_token":"TOKEN", "token_type":"Bearer",
    *  "expires_in":3600, "id_token":"TOKEN", "created":1320790426}
@@ -187,6 +175,23 @@ class apiClient {
   }
 
   /**
+   * Set the type of Auth class the client should use.
+   * @param string $authClassName
+   */
+  public function setAuthClass($authClassName) {
+    self::$auth = new $authClassName();
+  }
+
+  /**
+   * Construct the OAuth 2.0 authorization request URI.
+   * @return string
+   */
+  public function createAuthUrl() {
+    $service = $this->prepareService();
+    return self::$auth->createAuthUrl($service['scope']);
+  }
+
+  /**
    * Get the OAuth 2.0 access token.
    * @return string $accessToken JSON encoded string in the following format:
    * {"access_token":"TOKEN", "refresh_token":"TOKEN", "token_type":"Bearer",
@@ -195,6 +200,14 @@ class apiClient {
   public function getAccessToken() {
     $token = self::$auth->getAccessToken();
     return (null == $token || 'null' == $token) ? null : $token;
+  }
+
+  /**
+   * Returns if the access_token is expired.
+   * @return bool Returns True if the access_token is expired.
+   */
+  public function isAccessTokenExpired() {
+    return self::$auth->isAccessTokenExpired();
   }
 
   /**
@@ -251,6 +264,13 @@ class apiClient {
     $apiConfig['oauth2_client_id'] = $clientId;
     self::$auth->clientId = $clientId;
   }
+
+  /**
+   * Get the OAuth 2.0 Client ID.
+   */
+  public function getClientId() {
+    return self::$auth->clientId;
+  }
   
   /**
    * Set the OAuth 2.0 Client Secret.
@@ -263,6 +283,13 @@ class apiClient {
   }
 
   /**
+   * Get the OAuth 2.0 Client Secret.
+   */
+  public function getClientSecret() {
+    return self::$auth->clientSecret;
+  }
+
+  /**
    * Set the OAuth 2.0 Redirect URI.
    * @param string $redirectUri
    */
@@ -270,6 +297,13 @@ class apiClient {
     global $apiConfig;
     $apiConfig['oauth2_redirect_uri'] = $redirectUri;
     self::$auth->redirectUri = $redirectUri;
+  }
+
+  /**
+   * Get the OAuth 2.0 Redirect URI.
+   */
+  public function getRedirectUri() {
+    return self::$auth->redirectUri;
   }
 
   /**
@@ -284,7 +318,7 @@ class apiClient {
   /**
    * Revoke an OAuth2 access token or refresh token. This method will revoke the current access
    * token, if a token isn't provided.
-   * @throws apiAuthException
+   * @throws Google_AuthException
    * @param string|null $token The token (access token or a refresh token) that should be revoked.
    * @return boolean Returns True if the revocation was successful, otherwise False.
    */
@@ -295,9 +329,9 @@ class apiClient {
   /**
    * Verify an id_token. This method will verify the current id_token, if one
    * isn't provided.
-   * @throws apiAuthException
+   * @throws Google_AuthException
    * @param string|null $token The token (id_token) that should be verified.
-   * @return apiLoginTicket Returns an apiLoginTicket if the verification was
+   * @return Google_LoginTicket Returns an apiLoginTicket if the verification was
    * successful.
    */
   public function verifyIdToken($token = null) {
@@ -305,10 +339,18 @@ class apiClient {
   }
 
   /**
+   * @param Google_AssertionCredentials $creds
+   * @return void
+   */
+  public function setAssertionCredentials(Google_AssertionCredentials $creds) {
+    self::$auth->setAssertionCredentials($creds);
+  }
+
+  /**
    * This function allows you to overrule the automatically generated scopes,
    * so that you can ask for more or less permission in the auth flow
    * Set this before you call authenticate() though!
-   * @param array $scopes, ie: array('https://www.googleapis.com/auth/plus', 'https://www.googleapis.com/auth/moderator')
+   * @param array $scopes, ie: array('https://www.googleapis.com/auth/plus.me', 'https://www.googleapis.com/auth/moderator')
    */
   public function setScopes($scopes) {
     $this->scopes = is_string($scopes) ? explode(" ", $scopes) : $scopes;
@@ -319,53 +361,93 @@ class apiClient {
    *
    * @param boolean $useObjects True if objects should be returned by the service classes.
    * False if associative arrays should be returned (default behavior).
+   * @experimental
    */
   public function setUseObjects($useObjects) {
     global $apiConfig;
     $apiConfig['use_objects'] = $useObjects;
   }
 
-  private function discoverService($serviceName, $serviceURI) {
-    $request = self::$io->makeRequest(new apiHttpRequest($serviceURI));
-    if ($request->getResponseHttpCode() != 200) {
-      throw new apiException("Could not fetch discovery document for $serviceName, code: "
-            . $request->getResponseHttpCode() . ", response: " . $request->getResponseBody());
-    }
-    $discoveryResponse = $request->getResponseBody();
-    $discoveryDocument = json_decode($discoveryResponse, true);
-    if ($discoveryDocument == NULL) {
-      throw new apiException("Invalid json returned for $serviceName");
-    }
-    return new apiService($serviceName, $discoveryDocument, apiClient::getIo());
+  /**
+   * Declare if objects should be returned by the api service classes.
+   *
+   * @param boolean $useBatch True if the experimental batch support should
+   * be enabled. Defaults to False.
+   * @experimental
+   */
+  public function setUseBatch($useBatch) {
+    self::$useBatch = $useBatch;
   }
 
   /**
    * @static
-   * @return apiAuth the implementation of apiAuth.
+   * @return Google_Auth the implementation of apiAuth.
    */
   public static function getAuth() {
-    return apiClient::$auth;
+    return Google_Client::$auth;
   }
 
   /**
    * @static
-   * @return apiIo the implementation of apiIo.
+   * @return Google_IO the implementation of apiIo.
    */
   public static function getIo() {
-    return apiClient::$io;
+    return Google_Client::$io;
   }
 
   /**
-   * @return apiCache the implementation of apiCache.
+   * @return Google_Cache the implementation of apiCache.
    */
   public function getCache() {
-    return apiClient::$cache;
+    return Google_Client::$cache;
   }
 }
 
 // Exceptions that the Google PHP API Library can throw
-class apiException extends Exception {}
-class apiAuthException extends apiException {}
-class apiCacheException extends apiException {}
-class apiIOException extends apiException {}
-class apiServiceException extends apiException {}
+class Google_Exception extends Exception {}
+class Google_AuthException extends Google_Exception {}
+class Google_CacheException extends Google_Exception {}
+class Google_IOException extends Google_Exception {}
+class Google_ServiceException extends Google_Exception {
+  /**
+   * Optional list of errors returned in a JSON body of an HTTP error response.
+   */
+  protected $errors = array();
+
+  /**
+   * Override default constructor to add ability to set $errors.
+   *
+   * @param string $message
+   * @param int $code
+   * @param Exception|null $previous
+   * @param [{string, string}] errors List of errors returned in an HTTP
+   * response.  Defaults to [].
+   */
+  public function __construct($message, $code = 0, Exception $previous = null,
+                              $errors = array()) {
+    if(version_compare(PHP_VERSION, '5.3.0') >= 0) {
+      parent::__construct($message, $code, $previous);
+    } else {
+      parent::__construct($message, $code);
+    }
+    
+    $this->errors = $errors;
+  }
+
+  /**
+   * An example of the possible errors returned.
+   *
+   * {
+   *   "domain": "global",
+   *   "reason": "authError",
+   *   "message": "Invalid Credentials",
+   *   "locationType": "header",
+   *   "location": "Authorization",
+   * }
+   *
+   * @return [{string, string}] List of errors return in an HTTP response or [].
+   */
+  public function getErrors() {
+    return $this->errors;
+  }
+}

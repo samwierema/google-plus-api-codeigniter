@@ -7,20 +7,20 @@ class Googleplus {
 		$CI =& get_instance();
 		$CI->config->load('googleplus');
 				
-		require APPPATH .'third_party/google-api-php-client/src/apiClient.php';
-		require APPPATH .'third_party/google-api-php-client/src/contrib/apiPlusService.php';
+		require APPPATH .'third_party/google-api-php-client/src/Google_Client.php';
+		require APPPATH .'third_party/google-api-php-client/src/contrib/Google_PlusService.php';
 		
 		$cache_path = $CI->config->item('cache_path');
 		$GLOBALS['apiConfig']['ioFileCache_directory'] = ($cache_path == '') ? APPPATH .'cache/' : $cache_path;
 		
-		$client = new apiClient();
+		$client = new Google_Client();
 		$client->setApplicationName($CI->config->item('application_name', 'googleplus'));
 		$client->setClientId($CI->config->item('client_id', 'googleplus'));
 		$client->setClientSecret($CI->config->item('client_secret', 'googleplus'));
 		$client->setRedirectUri($CI->config->item('redirect_uri', 'googleplus'));
 		$client->setDeveloperKey($CI->config->item('api_key', 'googleplus'));
 		
-		$this->plus = new apiPlusService( $client );
+		$this->plus = new Google_PlusService($client);
 		
 	}
 	

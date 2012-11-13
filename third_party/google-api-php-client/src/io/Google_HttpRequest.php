@@ -23,8 +23,14 @@
  * @author Chirag Shah <chirags@google.com>
  *
  */
-class apiHttpRequest {
-  const USER_AGENT_SUFFIX = "google-api-php-client/0.5.0";
+class Google_HttpRequest {
+  const USER_AGENT_SUFFIX = "google-api-php-client/0.6.0";
+  private $batchHeaders = array(
+    'Content-Type' => 'application/http',
+    'Content-Transfer-Encoding' => 'binary',
+    'MIME-Version' => '1.0',
+    'Content-Length' => ''
+  );
 
   protected $url;
   protected $requestMethod;
@@ -39,7 +45,7 @@ class apiHttpRequest {
   public $accessKey;
 
   public function __construct($url, $method = 'GET', $headers = array(), $postBody = null) {
-    $this->url = $url;
+    $this->setUrl($url);
     $this->setRequestMethod($method);
     $this->setRequestHeaders($headers);
     $this->setPostBody($postBody);
@@ -113,7 +119,7 @@ class apiHttpRequest {
    * to be normalized.
    */
   public function setResponseHeaders($headers) {
-    $headers = apiUtils::normalize($headers);
+    $headers = Google_Utils::normalize($headers);
     if ($this->responseHeaders) {
       $headers = array_merge($this->responseHeaders, $headers);
     }
@@ -183,7 +189,16 @@ class apiHttpRequest {
    * @param string $url the url to set
    */
   public function setUrl($url) {
-    $this->url = $url;
+    if (substr($url, 0, 4) == 'http') {
+      $this->url = $url;
+    } else {
+      // Force the path become relative.
+      if (substr($url, 0, 1) !== '/') {
+        $url = '/' . $url;
+      }
+      global $apiConfig;
+      $this->url = $apiConfig['basePath'] . $url;
+    }
   }
 
   /**
@@ -200,7 +215,7 @@ class apiHttpRequest {
    * to be set and normalized.
    */
   public function setRequestHeaders($headers) {
-    $headers = apiUtils::normalize($headers);
+    $headers = Google_Utils::normalize($headers);
     if ($this->requestHeaders) {
       $headers = array_merge($this->requestHeaders, $headers);
     }
@@ -233,7 +248,7 @@ class apiHttpRequest {
    * Returns a cache key depending on if this was an OAuth signed request
    * in which case it will use the non-signed url and access key to make this
    * cache key unique per authenticated user, else use the plain request url
-   * @return The md5 hash of the request cache key.
+   * @return string The md5 hash of the request cache key.
    */
   public function getCacheKey() {
     $key = $this->getUrl();
@@ -253,10 +268,37 @@ class apiHttpRequest {
     $parsed = array();
     $rawCacheControl = $this->getResponseHeader('cache-control');
     if ($rawCacheControl) {
-      $rawCacheControl = str_replace(", ", "&", $rawCacheControl);
+      $rawCacheControl = str_replace(', ', '&', $rawCacheControl);
       parse_str($rawCacheControl, $parsed);
     }
 
     return $parsed;
+  }
+
+  /**
+   * @param string $id
+   * @return string A string representation of the HTTP Request.
+   */
+  public function toBatchString($id) {
+    $str = '';
+    foreach($this->batchHeaders as $key => $val) {
+      $str .= $key . ': ' . $val . "\n";
+    }
+
+    $str .= "Content-ID: $id\n";
+    $str .= "\n";
+
+    $path = parse_url($this->getUrl(), PHP_URL_PATH);
+    $str .= $this->getRequestMethod() . ' ' . $path . " HTTP/1.1\n";
+    foreach($this->getRequestHeaders() as $key => $val) {
+      $str .= $key . ': ' . $val . "\n";
+    }
+
+    if ($this->getPostBody()) {
+      $str .= "\n";
+      $str .= $this->getPostBody();
+    }
+
+    return $str;
   }
 }

@@ -15,48 +15,27 @@
  * limitations under the License.
  */
 
-require_once "external/URITemplateParser.php";
-require_once "service/apiUtils.php";
-
 /**
  * This class implements the RESTful transport of apiServiceRequest()'s
  *
  * @author Chris Chabot <chabotc@google.com>
  * @author Chirag Shah <chirags@google.com>
  */
-class apiREST {
+class Google_REST {
   /**
    * Executes a apiServiceRequest using a RESTful call by transforming it into
    * an apiHttpRequest, and executed via apiIO::authenticatedRequest().
    *
-   * @param apiServiceRequest $req
+   * @param Google_HttpRequest $req
    * @return array decoded result
-   * @throws apiServiceException on server side error (ie: not authenticated, invalid or
-   * malformed post body, invalid url)
+   * @throws Google_ServiceException on server side error (ie: not authenticated,
+   *  invalid or malformed post body, invalid url)
    */
-  static public function execute(apiServiceRequest $req) {
-    $result = null;
-    $postBody = $req->getPostBody();
-    $url = self::createRequestUri(
-        $req->getRestBasePath(), $req->getRestPath(), $req->getParameters());
-
-    $httpRequest = new apiHttpRequest($url, $req->getHttpMethod(), null, $postBody);
-    if ($postBody) {
-      $contentTypeHeader = array();
-      if (isset($req->contentType) && $req->contentType) {
-        $contentTypeHeader['content-type'] = $req->contentType;
-      } else {
-        $contentTypeHeader['content-type'] = 'application/json; charset=UTF-8';
-        $contentTypeHeader['content-length'] = apiUtils::getStrLen($postBody);
-      }
-      $httpRequest->setRequestHeaders($contentTypeHeader);
-    }
-
-    $httpRequest = apiClient::$io->authenticatedRequest($httpRequest);
+  static public function execute(Google_HttpRequest $req) {
+    $httpRequest = Google_Client::$io->makeRequest($req);
     $decodedResponse = self::decodeHttpResponse($httpRequest);
-
-    //FIXME currently everything is wrapped in a data envelope, but hopefully this might change some day
-    $ret = isset($decodedResponse['data']) ? $decodedResponse['data'] : $decodedResponse;
+    $ret = isset($decodedResponse['data'])
+        ? $decodedResponse['data'] : $decodedResponse;
     return $ret;
   }
 
@@ -64,11 +43,11 @@ class apiREST {
   /**
    * Decode an HTTP Response.
    * @static
-   * @throws apiServiceException
-   * @param apiHttpRequest $response The http response to be decoded.
+   * @throws Google_ServiceException
+   * @param Google_HttpRequest $response The http response to be decoded.
    * @return mixed|null
    */
-  static function decodeHttpResponse($response) {
+  public static function decodeHttpResponse($response) {
     $code = $response->getResponseHttpCode();
     $body = $response->getResponseBody();
     $decoded = null;
@@ -83,14 +62,15 @@ class apiREST {
       } else {
         $err .= ": ($code) $body";
       }
-      throw new apiServiceException($err, $code);
+
+      throw new Google_ServiceException($err, $code, null, $decoded['error']['errors']);
     }
     
     // Only attempt to decode the response, if the response code wasn't (204) 'no content'
     if ($code != '204') {
       $decoded = json_decode($body, true);
-      if ($decoded == null) {
-        throw new apiServiceException("Invalid json in service response: $body");
+      if ($decoded === null || $decoded === "") {
+        throw new Google_ServiceException("Invalid json in service response: $body");
       }
     }
     return $decoded;
@@ -100,13 +80,13 @@ class apiREST {
    * Parse/expand request parameters and create a fully qualified
    * request uri.
    * @static
-   * @param string $basePath
+   * @param string $servicePath
    * @param string $restPath
    * @param array $params
    * @return string $requestUrl
    */
-  static function createRequestUri($basePath, $restPath, $params) {
-    $requestUrl = $basePath . $restPath;
+  static function createRequestUri($servicePath, $restPath, $params) {
+    $requestUrl = $servicePath . $restPath;
     $uriTemplateVars = array();
     $queryVars = array();
     foreach ($params as $paramName => $paramSpec) {

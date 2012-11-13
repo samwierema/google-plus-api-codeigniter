@@ -23,11 +23,11 @@
  *
  * @author Chris Chabot <chabotc@google.com>
  */
-class apiApcCache extends apiCache {
+class googleApcCache extends Google_Cache {
 
   public function __construct() {
     if (! function_exists('apc_add')) {
-      throw new apiCacheException("Apc functions not available");
+      throw new Google_CacheException("Apc functions not available");
     }
   }
 
@@ -84,12 +84,13 @@ class apiApcCache extends apiCache {
    */
   public function set($key, $value) {
     if (@apc_store($key, array('time' => time(), 'data' => serialize($value))) == false) {
-      throw new apiCacheException("Couldn't store data");
+      throw new Google_CacheException("Couldn't store data");
     }
   }
 
   /**
    * @inheritDoc
+   * @param String $key
    */
   public function delete($key) {
     @apc_delete($key);

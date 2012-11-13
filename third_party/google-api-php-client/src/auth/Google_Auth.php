@@ -15,25 +15,22 @@
  * limitations under the License.
  */
 
+require_once "Google_AuthNone.php";
+require_once "Google_OAuth2.php";
+
 /**
- * Wrapper for the (experimental!) JSON-RPC protocol, for production use regular REST calls instead
- *
+ * Abstract class for the Authentication in the API client
  * @author Chris Chabot <chabotc@google.com>
+ *
  */
-class apiBatch {
+abstract class Google_Auth {
+  abstract public function authenticate($service);
+  abstract public function sign(Google_HttpRequest $request);
+  abstract public function createAuthUrl($scope);
 
-  /**
-   * Execute one or multiple Google API requests, takes one or multiple requests as param
-   * Example usage:
-   *   $ret = apiBatch::execute(
-   *     $apiClient->activities->list(array('@public', '@me'), 'listActivitiesKey'),
-   *     $apiClient->people->get(array('userId' => '@me'), 'getPeopleKey')
-   *   );
-   *   print_r($ret['getPeopleKey']);
-   */
-  static public function execute( /* polymorphic */) {
-    $requests = func_get_args();
-    return apiRPC::execute($requests);
-  }
-
+  abstract public function getAccessToken();
+  abstract public function setAccessToken($accessToken);
+  abstract public function setDeveloperKey($developerKey);
+  abstract public function refreshToken($refreshToken);
+  abstract public function revokeToken();
 }

@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2011 Google Inc.
+ * Copyright 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,8 @@
  * limitations under the License.
  */
 
-require_once "apiPemVerifier.php";
-
-/**
- * Verifies signatures.
- *
- * @author Brian Eaton <beaton@google.com>
- */
-abstract class apiVerifier {
-  /**
-   * Checks a signature, returns true if the signature is correct,
-   * false otherwise.
-   */
-  abstract public function verify($data, $signature);
+class Google_Service {
+  public $version;
+  public $servicePath;
+  public $resource;
 }

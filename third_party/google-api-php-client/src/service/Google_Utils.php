@@ -21,7 +21,7 @@
  *
  * @author Chirag Shah <chirags@google.com>
  */
-class apiUtils {
+class Google_Utils {
   public static function urlSafeB64Encode($data) {
     $b64 = base64_encode($data);
     $b64 = str_replace(array('+', '/', '\r', '\n', '='),

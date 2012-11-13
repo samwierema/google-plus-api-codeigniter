@@ -22,7 +22,7 @@
  * @author Chirag Shah <chirags@google.com>
  *
  */
-class apiModel {
+class Google_Model {
   public function __construct( /* polymorphic */ ) {
     if (func_num_args() ==  1 && is_array(func_get_arg(0))) {
       // Initialize the model with the array's contents.
@@ -33,11 +33,11 @@ class apiModel {
 
   /**
    * Initialize this object's properties from an array.
-   * 
-   * @param array Used to seed this object's properties.
+   *
+   * @param array $array Used to seed this object's properties.
    * @return void
    */
-  private function mapTypes($array) {
+  protected function mapTypes($array) {
     foreach ($array as $key => $val) {
       $this->$key = $val;
 
@@ -69,7 +69,7 @@ class apiModel {
    * @param array $array
    * @return bool True if the array is associative.
    */
-  private function isAssociativeArray($array) {
+  protected function isAssociativeArray($array) {
     if (!is_array($array)) {
       return false;
     }
@@ -93,7 +93,7 @@ class apiModel {
     $type = $this->$name;
     return new $type($item);
   }
-  
+
   protected function useObjects() {
     global $apiConfig;
     return (isset($apiConfig['use_objects']) && $apiConfig['use_objects']);
@@ -101,14 +101,14 @@ class apiModel {
 
   /**
    * Verify if $obj is an array.
-   * @throws apiException Thrown if $obj isn't an array.
+   * @throws Google_Exception Thrown if $obj isn't an array.
    * @param array $obj Items that should be validated.
    * @param string $type Array items should be of this type.
    * @param string $method Method expecting an array as an argument.
    */
-  protected function assertIsArray($obj, $type, $method) {
+  public function assertIsArray($obj, $type, $method) {
     if ($obj && !is_array($obj)) {
-      throw new apiException("Incorrect parameter type passed to $method(), expected an"
+      throw new Google_Exception("Incorrect parameter type passed to $method(), expected an"
           . " array containing items of type $type.");
     }
   }
