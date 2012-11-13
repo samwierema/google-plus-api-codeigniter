@@ -13,14 +13,14 @@ class Googleplus {
 		$cache_path = $CI->config->item('cache_path');
 		$GLOBALS['apiConfig']['ioFileCache_directory'] = ($cache_path == '') ? APPPATH .'cache/' : $cache_path;
 		
-		$client = new Google_Client();
-		$client->setApplicationName($CI->config->item('application_name', 'googleplus'));
-		$client->setClientId($CI->config->item('client_id', 'googleplus'));
-		$client->setClientSecret($CI->config->item('client_secret', 'googleplus'));
-		$client->setRedirectUri($CI->config->item('redirect_uri', 'googleplus'));
-		$client->setDeveloperKey($CI->config->item('api_key', 'googleplus'));
+		$this->client = new Google_Client();
+		$this->client->setApplicationName($CI->config->item('application_name', 'googleplus'));
+		$this->client->setClientId($CI->config->item('client_id', 'googleplus'));
+		$this->client->setClientSecret($CI->config->item('client_secret', 'googleplus'));
+		$this->client->setRedirectUri($CI->config->item('redirect_uri', 'googleplus'));
+		$this->client->setDeveloperKey($CI->config->item('api_key', 'googleplus'));
 		
-		$this->plus = new Google_PlusService($client);
+		$this->plus = new Google_PlusService($this->client);
 		
 	}
 	
